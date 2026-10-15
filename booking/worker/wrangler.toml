@@ -1,0 +1,19 @@
+# Cloudflare Worker — API онлайн-записи MS Nails Academy
+# Деплой: см. booking/README.md  (npx wrangler deploy из папки booking/worker)
+
+name = "ms-nails-booking"
+main = "src/index.mjs"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Сайты, которым разрешено отправлять записи (через запятую)
+ALLOWED_ORIGINS = "https://rustams060575-bot.github.io"
+# Приватный репозиторий, где хранится bookings.json
+BOOKINGS_REPO = "rustams060575-bot/ms-nails-bookings"
+BOOKINGS_PATH = "bookings.json"
+BOOKINGS_BRANCH = "main"
+
+# Секреты задаются командой, а не здесь:
+#   npx wrangler secret put GITHUB_TOKEN
+#   npx wrangler secret put TELEGRAM_BOT_TOKEN
+#   npx wrangler secret put TELEGRAM_CHAT_ID

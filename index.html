@@ -19,6 +19,9 @@
   ФОТО, ВИДЕО, МУЗЫКА, ШРИФТЫ: всё лежит в репозитории (photos/, fonts/), внешних хостингов нет.
   Чтобы заменить фото — положите новый файл под тем же именем. Карта файлов: photos/README.txt.
 
+  ОНЛАЙН-ЗАПИСЬ: iOS-виджет перед футером (#book). Адрес API — BOOKING_API в последнем скрипте;
+  сервер, Telegram и SMS-напоминания — папка booking/ и .github/workflows/sms-reminders.yml (инструкция: booking/README.md).
+
   МУЗЫКА: как на Tilda-сайте — пункт «Вайб» в шапке (десктоп) и в меню (телефон).
 
   ЭФФЕКТЫ: Lenis, посимвольные заголовки, «жалюзи» hero, две арки-портала (вход внутрь + лента вбок),
@@ -483,6 +486,144 @@ body.menu-open .header .logo img{filter:none}
 .footer__credit:hover{opacity:1}
 @media (max-width:560px){.footer__bottom{padding-bottom:56px}}
 
+/* ============ ОНЛАЙН-ЗАПИСЬ · iOS-виджет ============ */
+.ob{position:relative;padding:clamp(90px,11vw,160px) 0;overflow:hidden;isolation:isolate}
+.ob__aura{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.ob__aura i{position:absolute;border-radius:50%;filter:blur(80px);opacity:.8;animation:obDrift 20s ease-in-out infinite alternate}
+.ob__aura i:nth-child(1){width:min(48vw,640px);aspect-ratio:1;left:-10%;top:6%;background:#E2D3A8}
+.ob__aura i:nth-child(2){width:min(40vw,540px);aspect-ratio:1;right:-6%;top:24%;background:#EBD5CB;animation-delay:-7s}
+.ob__aura i:nth-child(3){width:min(36vw,480px);aspect-ratio:1;left:38%;bottom:-18%;background:#CEC6B3;animation-delay:-13s}
+@keyframes obDrift{to{transform:translate3d(7%,-6%,0) scale(1.1)}}
+.ob__grid{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(44px,6vw,96px);align-items:center}
+.ob__grid>*{min-width:0}
+@media (min-width:960px){.ob__grid{grid-template-columns:minmax(0,1fr) minmax(390px,450px)}}
+.ob__text .h2{margin-top:18px}
+.ob__text .lead{margin-top:24px;max-width:31em}
+.ob__perks{list-style:none;padding:0;margin:34px 0 0;display:grid;gap:14px}
+.ob__perks li{display:flex;align-items:center;gap:14px;font-size:16px;color:var(--ink)}
+.ob__perks i{width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:grid;place-items:center;background:rgba(251,250,246,.7);color:var(--gold-text);box-shadow:var(--shadow)}
+.ob__perks svg{width:17px;height:17px}
+
+.iw{--iw-ink:#1D1D1F;--iw-sub:rgba(60,60,67,.6);--iw-fill:rgba(118,118,128,.12);--iw-sep:rgba(60,60,67,.16);--iw-tile:rgba(255,255,255,.62);--iw-spring:cubic-bezier(.32,.72,0,1);
+  position:relative;width:100%;max-width:450px;margin-inline:auto;padding:16px 20px 22px;border-radius:44px;color:var(--iw-ink);
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue','Manrope',system-ui,sans-serif;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;
+  background:linear-gradient(160deg,rgba(255,255,255,.74),rgba(255,255,255,.4));
+  -webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);
+  border:1px solid rgba(255,255,255,.75);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 40px 90px -36px rgba(70,56,30,.42),0 10px 28px -14px rgba(70,56,30,.2)}
+.iw button,.iw input,.iw select{font:inherit;color:inherit;letter-spacing:inherit}
+.iw button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+/* Dynamic Island */
+.iw__island{position:relative;width:176px;height:36px;margin:0 auto 22px;border-radius:20px;background:#000;color:#fff;overflow:hidden;box-shadow:0 12px 26px -14px rgba(0,0,0,.6);
+  transition:width .6s var(--iw-spring),height .6s var(--iw-spring),border-radius .6s var(--iw-spring)}
+.iw__isl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:9px;padding:0 16px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transform:scale(.9);filter:blur(4px);transition:opacity .35s,transform .45s var(--iw-spring),filter .35s}
+.iw__island[data-state="idle"] .iw__isl--idle,.iw__island[data-state="loading"] .iw__isl--load,.iw__island[data-state="done"] .iw__isl--done,.iw__island[data-state="error"] .iw__isl--err{opacity:1;transform:none;filter:none;transition-delay:.12s}
+.iw__island[data-state="loading"]{width:132px}
+.iw__island[data-state="done"]{width:min(100%,330px);height:68px;border-radius:34px}
+.iw__island[data-state="error"]{width:min(100%,300px)}
+.iw__dot{width:7px;height:7px;border-radius:50%;background:#34C759;animation:iwPulse 2.2s infinite}
+.iw[data-mode="wa"] .iw__dot{background:#FF9F0A;animation-name:iwPulseA}
+@keyframes iwPulse{0%{box-shadow:0 0 0 0 rgba(52,199,89,.7)}70%{box-shadow:0 0 0 7px rgba(52,199,89,0)}100%{box-shadow:0 0 0 0 rgba(52,199,89,0)}}
+@keyframes iwPulseA{0%{box-shadow:0 0 0 0 rgba(255,159,10,.7)}70%{box-shadow:0 0 0 7px rgba(255,159,10,0)}100%{box-shadow:0 0 0 0 rgba(255,159,10,0)}}
+.iw__spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;animation:iwSpin .8s linear infinite}
+@keyframes iwSpin{to{transform:rotate(360deg)}}
+.iw__isl--done{justify-content:flex-start;gap:12px;padding:0 14px}
+.iw__isl--done .iw__ok{width:40px;height:40px;flex:0 0 40px;border-radius:50%;background:var(--gold);display:grid;place-items:center}
+.iw__isl--done .iw__ok svg{width:20px;height:20px}
+.iw__isl--done span{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.iw__isl--done b{font-size:14px}
+.iw__isl--done small{font-size:12.5px;font-weight:500;color:rgba(255,255,255,.62);overflow:hidden;text-overflow:ellipsis}
+.iw__isl--err{color:#FF6961}
+
+.iw__title{font-size:31px;font-weight:700;letter-spacing:-.03em;line-height:1.08}
+.iw__sub{margin-top:5px;font-size:15px;color:var(--iw-sub)}
+
+/* сегменты */
+.iw__seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);margin-top:20px;padding:2px;border-radius:11px;background:var(--iw-fill)}
+.iw__thumb{position:absolute;top:2px;bottom:2px;left:2px;width:calc((100% - 4px) / 3);border-radius:9px;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04);transform:translateX(calc(100% * var(--i,0)));transition:transform .5s var(--iw-spring)}
+.iw__seg button{position:relative;z-index:1;height:34px;padding:0 6px;border-radius:9px;font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:transform .2s var(--iw-spring)}
+.iw__seg button[aria-checked="true"]{font-weight:600}
+.iw__seg button:active{transform:scale(.95)}
+.iw__dur{display:flex;align-items:center;gap:6px;margin:10px 4px 0;font-size:13px;color:var(--iw-sub)}
+.iw__dur svg{width:13px;height:13px}
+
+.iw__label{display:flex;justify-content:space-between;align-items:baseline;margin:22px 4px 9px;font-size:12.5px;font-weight:500;text-transform:uppercase;letter-spacing:.03em;color:var(--iw-sub)}
+.iw__label span{text-transform:none;letter-spacing:0}
+
+/* даты */
+.iw__days{display:flex;gap:8px;margin:0 -20px -8px;padding:2px 20px 16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:20px;scrollbar-width:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent)}
+.iw__days::-webkit-scrollbar{display:none}
+.iw__day{flex:0 0 52px;height:68px;border-radius:17px;background:var(--iw-tile);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;scroll-snap-align:start;
+  transition:transform .25s var(--iw-spring),background-color .3s,color .3s,box-shadow .3s}
+.iw__day small{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--iw-sub);transition:color .3s}
+.iw__day b{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.iw__day[aria-pressed="true"]{background:var(--iw-ink);color:#fff;box-shadow:0 10px 20px -10px rgba(0,0,0,.5)}
+.iw__day[aria-pressed="true"] small{color:rgba(255,255,255,.65)}
+.iw__day:disabled{opacity:.32;cursor:default}
+.iw__day:not(:disabled):active{transform:scale(.92)}
+
+/* время */
+.iw__times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;min-height:96px;align-content:start}
+.iw__time{height:42px;border-radius:13px;background:var(--iw-tile);font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;transition:transform .25s var(--iw-spring),background-color .3s,color .3s;animation:iwIn .45s var(--iw-spring) both}
+.iw__time[aria-pressed="true"]{background:var(--iw-ink);color:#fff}
+.iw__time:active{transform:scale(.92)}
+@keyframes iwIn{from{opacity:0;transform:translateY(6px) scale(.96)}}
+.iw__empty{grid-column:1/-1;display:grid;place-items:center;min-height:96px;border-radius:16px;background:var(--iw-fill);padding:0 20px;font-size:14px;color:var(--iw-sub);text-align:center}
+.iw__skel{height:42px;border-radius:13px;background:linear-gradient(90deg,var(--iw-fill) 25%,rgba(255,255,255,.7) 50%,var(--iw-fill) 75%);background-size:200% 100%;animation:iwShimmer 1.3s infinite}
+@keyframes iwShimmer{to{background-position:-200% 0}}
+
+/* контакты — сгруппированный список iOS */
+.iw__group{border-radius:16px;background:rgba(255,255,255,.7);overflow:hidden}
+.iw__group.is-shake{animation:iwShake .45s}
+@keyframes iwShake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.iw__row{position:relative;display:flex;align-items:center;gap:10px;min-height:50px;padding:0 16px}
+.iw__row+.iw__row::before{content:"";position:absolute;top:0;left:16px;right:0;height:.5px;background:var(--iw-sep)}
+.iw__row input{flex:1;min-width:0;height:48px;border:0;background:none;outline:none;font-size:17px}
+.iw__row input::placeholder{color:rgba(60,60,67,.38)}
+.iw__cc{flex:0 0 auto;height:30px;padding:0 8px;border:0;border-radius:8px;background:var(--iw-fill);font-size:15px;font-weight:600;-webkit-appearance:none;appearance:none;outline:none;cursor:pointer}
+.iw__row.is-bad input{color:#D70015}
+.iw__hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+/* кнопка */
+.iw__cta{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;margin-top:18px;border:0;border-radius:18px;background:var(--iw-ink);color:#fff;font-size:17px;font-weight:600;overflow:hidden;isolation:isolate;
+  box-shadow:0 16px 30px -16px rgba(0,0,0,.6);transition:transform .3s var(--iw-spring),opacity .3s,box-shadow .3s}
+.iw__cta small{font-weight:500;opacity:.6}
+.iw__cta:not(:disabled):hover{box-shadow:0 20px 36px -16px rgba(0,0,0,.65)}
+.iw__cta:not(:disabled):active{transform:scale(.965)}
+.iw__cta:disabled{background:var(--iw-fill);color:var(--iw-sub);cursor:default;box-shadow:none}
+.iw__cta.is-busy{opacity:.7;pointer-events:none}
+.iw__ripple{position:absolute;z-index:-1;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:rgba(255,255,255,.35);transform:scale(0);animation:iwRipple .7s ease-out forwards;pointer-events:none}
+@keyframes iwRipple{to{transform:scale(28);opacity:0}}
+.iw__msg{min-height:0;margin:10px 4px 0;font-size:13.5px;line-height:1.4;color:#D70015;text-align:center}
+.iw__msg:empty{display:none}
+.iw__msg a{color:inherit;font-weight:600;text-decoration:underline}
+.iw__note{margin:12px 6px 0;font-size:12px;line-height:1.45;color:var(--iw-sub);text-align:center}
+
+/* экран «готово» */
+.iw__form,.iw__done{transition:opacity .45s,transform .6s var(--iw-spring)}
+.iw[data-view="done"] .iw__form{display:none}
+.iw__done{display:none;text-align:center;padding:6px 0 2px}
+.iw[data-view="done"] .iw__done{display:block;animation:iwIn .6s var(--iw-spring) both}
+.iw__check{width:84px;height:84px;margin:6px auto 18px;border-radius:50%;background:rgba(182,159,100,.16);display:grid;place-items:center;color:var(--gold-text)}
+.iw__check svg{width:42px;height:42px}
+.iw__check path{stroke-dasharray:40;stroke-dashoffset:40}
+.iw[data-view="done"] .iw__check path{animation:iwDraw .7s .25s var(--iw-spring) forwards}
+@keyframes iwDraw{to{stroke-dashoffset:0}}
+.iw__done h3{font-size:26px;font-weight:700;letter-spacing:-.025em}
+.iw__done p{margin-top:6px;font-size:15px;color:var(--iw-sub)}
+.iw__ticket{margin:20px 0 4px;border-radius:16px;background:rgba(255,255,255,.7);text-align:left}
+.iw__ticket div{position:relative;display:flex;justify-content:space-between;gap:12px;padding:13px 16px;font-size:15px}
+.iw__ticket div+div::before{content:"";position:absolute;top:0;left:16px;right:0;height:.5px;background:var(--iw-sep)}
+.iw__ticket dt{color:var(--iw-sub)}
+.iw__ticket dd{margin:0;font-weight:600;text-align:right}
+.iw__ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;height:50px;margin-top:10px;border:0;border-radius:16px;background:var(--iw-fill);font-size:16px;font-weight:600;color:var(--gold-text);transition:transform .25s var(--iw-spring)}
+.iw__ghost:active{transform:scale(.965)}
+.iw__ghost svg{width:18px;height:18px}
+.iw__link{margin-top:14px;font-size:15px;font-weight:500;color:var(--iw-sub);background:none;border:0}
+@media (max-width:400px){.iw{padding:14px 16px 20px;border-radius:38px}.iw__days{margin:0 -16px;padding-inline:16px}.iw__title{font-size:27px}.iw__seg button{font-size:12.5px}.iw__time{font-size:14px}}
+
 /* ============ ЛАЙТБОКС ============ */
 .lightbox{position:fixed;inset:0;z-index:90;background:rgba(36,30,20,.94);display:grid;place-items:center;opacity:0;visibility:hidden;transition:opacity .5s var(--ease),visibility .5s}
 .lightbox.is-open{opacity:1;visibility:visible}
@@ -890,10 +1031,80 @@ body.menu-open .header .logo img{filter:none}
       </div>
     </div>
   </section>
+
+  <!-- ============ ОНЛАЙН-ЗАПИСЬ (iOS-виджет · booking/README.md) ============ -->
+  <section class="ob" id="book" data-theme="light">
+    <div class="ob__aura" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="container ob__grid">
+      <div class="ob__text">
+        <span class="eyebrow" data-fade data-i18n="ob.eyebrow">Онлайн-запись</span>
+        <h2 class="h2 display" data-chars data-i18n="ob.title">Ваше время — <em>в одно касание</em></h2>
+        <p class="lead" data-lines data-i18n="ob.lead">Выберите ритуал, день и удобное время. Мария получит запись мгновенно, а за сутки до визита мы напомним вам по SMS.</p>
+        <ul class="ob__perks" data-stagger>
+          <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><span data-i18n="ob.p1">Подтверждение сразу</span></li>
+          <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3"/></svg></i><span data-i18n="ob.p2">SMS-напоминание за 24 часа</span></li>
+          <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i><span data-i18n="ob.p3">Без звонков и переписки</span></li>
+        </ul>
+      </div>
+
+      <div class="iw" data-iw data-view="form" data-mode="api" data-fade>
+        <div class="iw__island" data-state="idle" aria-live="polite">
+          <div class="iw__isl iw__isl--idle"><i class="iw__dot"></i><span data-iw-t="online"></span></div>
+          <div class="iw__isl iw__isl--load"><i class="iw__spin"></i><span data-iw-t="sending"></span></div>
+          <div class="iw__isl iw__isl--done"><i class="iw__ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><span><b data-iw-t="doneShort"></b><small data-iw-island-when></small></span></div>
+          <div class="iw__isl iw__isl--err"><span data-iw-island-err></span></div>
+        </div>
+
+        <div class="iw__form">
+          <div class="iw__title">MS Nails Academy</div>
+          <div class="iw__sub" data-iw-t="sub"></div>
+
+          <div class="iw__seg" role="radiogroup" data-iw-seg><span class="iw__thumb"></span></div>
+          <div class="iw__dur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-iw-dur></span></div>
+
+          <div class="iw__label"><b data-iw-t="date"></b><span data-iw-month></span></div>
+          <div class="iw__days" data-iw-days data-lenis-prevent></div>
+
+          <div class="iw__label"><b data-iw-t="time"></b></div>
+          <div class="iw__times" data-iw-times></div>
+
+          <div class="iw__label"><b data-iw-t="contacts"></b></div>
+          <form class="iw__group" data-iw-fields novalidate>
+            <div class="iw__row"><input type="text" name="name" autocomplete="name" maxlength="60" data-iw-ph="name" required></div>
+            <div class="iw__row">
+              <select class="iw__cc" name="cc" aria-label="Country code">
+                <option value="+30" selected>🇬🇷 +30</option>
+                <option value="+357">🇨🇾 +357</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+49">🇩🇪 +49</option>
+                <option value="+7">+7</option>
+                <option value="+380">🇺🇦 +380</option>
+              </select>
+              <input type="tel" name="phone" autocomplete="tel-national" inputmode="tel" maxlength="16" placeholder="69X XXX XXXX" required>
+            </div>
+            <input class="iw__hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          </form>
+
+          <button type="button" class="iw__cta" data-iw-cta disabled></button>
+          <p class="iw__msg" role="alert" data-iw-msg></p>
+          <p class="iw__note" data-iw-note></p>
+        </div>
+
+        <div class="iw__done">
+          <div class="iw__check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+          <h3 data-iw-t="doneTitle"></h3>
+          <p data-iw-t="doneText"></p>
+          <dl class="iw__ticket" data-iw-ticket></dl>
+          <button type="button" class="iw__ghost" data-iw-ics><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v4M10 15h4"/></svg><span data-iw-t="ics"></span></button>
+          <button type="button" class="iw__link" data-iw-again data-iw-t="again"></button>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
-<!-- ============ ФУТЕР / ЗАПИСЬ ============ -->
-<footer class="footer" id="book" data-theme="light">
+<!-- ============ ФУТЕР ============ -->
+<footer class="footer" data-theme="light">
   <div class="container">
     <div class="book">
       <div>
@@ -1047,6 +1258,8 @@ var I18N = {
     'ct.phone': 'Phone', 'ct.hours': 'Working hours', 'ct.hoursv': 'Mon–Fri 09:00 – 21:00 · Sat 09:00 – 21:00',
     'ct.call': 'Call', 'ct.copy': 'Copy address', 'ct.wa': 'Message on WhatsApp', 'ct.copied': 'Address copied',
     'bk.eyebrow': 'Booking', 'bk.title': 'Let’s create beauty <em>together</em>', 'bk.name': 'Maria Semenova', 'bk.role': 'Beauty &amp; care specialist',
+    'ob.eyebrow': 'Online booking', 'ob.title': 'Your time, <em>in one tap</em>', 'ob.lead': 'Choose your ritual, day and a time that suits you. Maria receives your booking instantly, and we will remind you by SMS the day before your visit.',
+    'ob.p1': 'Instant confirmation', 'ob.p2': 'SMS reminder 24 hours before', 'ob.p3': 'No calls, no back-and-forth',
     'ft.menu': 'Menu', 'ft.contact': 'Contact', 'ft.lang': 'Language'
   },
   el: {
@@ -1097,6 +1310,8 @@ var I18N = {
     'ct.phone': 'Τηλέφωνο', 'ct.hours': 'Ώρες λειτουργίας', 'ct.hoursv': 'Δευ–Παρ 09:00 – 21:00 · Σαβ 09:00 – 21:00',
     'ct.call': 'Κλήση', 'ct.copy': 'Αντιγραφή διεύθυνσης', 'ct.wa': 'Μήνυμα στο WhatsApp', 'ct.copied': 'Η διεύθυνση αντιγράφηκε',
     'bk.eyebrow': 'Ραντεβού', 'bk.title': 'Δημιουργούμε ομορφιά <em>μαζί</em>', 'bk.name': 'Maria Semenova', 'bk.role': 'Ειδικός ομορφιάς',
+    'ob.eyebrow': 'Online ραντεβού', 'ob.title': 'Ο χρόνος σας, <em>με ένα άγγιγμα</em>', 'ob.lead': 'Επιλέξτε τελετουργία, ημέρα και ώρα που σας βολεύει. Η Μαρία λαμβάνει το ραντεβού αμέσως και μία ημέρα πριν θα σας το υπενθυμίσουμε με SMS.',
+    'ob.p1': 'Άμεση επιβεβαίωση', 'ob.p2': 'SMS υπενθύμιση 24 ώρες πριν', 'ob.p3': 'Χωρίς τηλέφωνα και μηνύματα',
     'ft.menu': 'Μενού', 'ft.contact': 'Επικοινωνία', 'ft.lang': 'Γλώσσα'
   },
   ru: {
@@ -1610,6 +1825,359 @@ var I18N = {
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(start);
   setTimeout(start, 2500);
   window.addEventListener('load', function () { ScrollTrigger.refresh(); });
+})();
+</script>
+
+<script>
+/* ============ ОНЛАЙН-ЗАПИСЬ · iOS-виджет ============
+   BOOKING_API — адрес Cloudflare Worker из booking/README.md (например https://ms-nails-booking.xxx.workers.dev).
+   Пока адрес пуст или API недоступен, виджет работает в резервном режиме: заявка уходит Марии в WhatsApp. */
+(function () {
+  'use strict';
+  var BOOKING_API = '';
+  var WA_PHONE = '306939350160';
+  var ADDRESS = 'Likourgou 15, Peristeri 121 32, Athens, Greece';
+
+  var root = document.querySelector('[data-iw]');
+  if (!root) { return; }
+  var lang = ['ru', 'en', 'el'].indexOf(document.documentElement.lang) > -1 ? document.documentElement.lang : 'ru';
+  var LOCALE = { ru: 'ru-RU', en: 'en-GB', el: 'el-GR' }[lang];
+
+  /* [подпись в сегменте, полное название]; длительность — как в booking/shared/schedule.mjs */
+  var SVC = [
+    { id: 'manicure', min: 90, ru: ['Маникюр', 'Маникюр'], en: ['Manicure', 'Manicure'], el: ['Μανικιούρ', 'Μανικιούρ'] },
+    { id: 'pedicure', min: 90, ru: ['Педикюр', 'Педикюр'], en: ['Pedicure', 'Pedicure'], el: ['Πεντικιούρ', 'Πεντικιούρ'] },
+    { id: 'face', min: 60, ru: ['Уход за лицом', 'Уход за лицом'], en: ['Face care', 'Face care'], el: ['Πρόσωπο', 'Περιποίηση προσώπου'] }
+  ];
+
+  var T = {
+    ru: {
+      online: 'Онлайн-запись', sending: 'Отправляем…', doneShort: 'Вы записаны', sub: 'Маникюр · Педикюр · Уход за лицом',
+      date: 'Дата', time: 'Время', contacts: 'Контакты', name: 'Ваше имя', cta: 'Записаться', ctaWa: 'Отправить в WhatsApp', pick: 'Выберите время',
+      noSlots: 'На этот день свободного времени нет — выберите другой', h: 'ч', min: 'мин',
+      note: 'Нажимая «Записаться», вы соглашаетесь на обработку имени и телефона для записи. За 24 часа до визита придёт SMS-напоминание.',
+      noteWa: 'Заявка откроется в WhatsApp — Мария подтвердит время.',
+      errName: 'Укажите ваше имя', errPhone: 'Проверьте номер телефона', errTaken: 'Это время только что заняли — выберите другое',
+      errMany: 'У вас уже есть несколько записей — напишите Марии в WhatsApp',
+      errNet: 'Не удалось отправить. Попробуйте ещё раз или <a href="{wa}" target="_blank" rel="noopener">напишите в WhatsApp</a>.', islandErr: 'Не отправлено',
+      doneTitle: 'Вы записаны', doneText: 'Мария ждёт вас в студии на Likourgou 15', service: 'Услуга', when: 'Когда', duration: 'Длительность',
+      ics: 'Добавить в календарь', again: 'Новая запись',
+      wa: 'Здравствуйте! Хочу записаться: {svc}, {date} в {time}. Имя: {name}, тел.: {phone}'
+    },
+    en: {
+      online: 'Online booking', sending: 'Sending…', doneShort: 'You’re booked', sub: 'Manicure · Pedicure · Face care',
+      date: 'Date', time: 'Time', contacts: 'Contact details', name: 'Your name', cta: 'Book now', ctaWa: 'Send via WhatsApp', pick: 'Choose a time',
+      noSlots: 'No free time on this day — please choose another', h: 'h', min: 'min',
+      note: 'By booking you agree that your name and phone are used for this appointment. You will get an SMS reminder 24 hours before.',
+      noteWa: 'Your request opens in WhatsApp — Maria will confirm the time.',
+      errName: 'Please enter your name', errPhone: 'Please check the phone number', errTaken: 'This time was just taken — please choose another',
+      errMany: 'You already have several bookings — please message Maria on WhatsApp',
+      errNet: 'Could not send. Please try again or <a href="{wa}" target="_blank" rel="noopener">message us on WhatsApp</a>.', islandErr: 'Not sent',
+      doneTitle: 'You’re booked', doneText: 'Maria is looking forward to seeing you at Likourgou 15', service: 'Service', when: 'When', duration: 'Duration',
+      ics: 'Add to calendar', again: 'New booking',
+      wa: 'Hello! I would like to book: {svc}, {date} at {time}. Name: {name}, phone: {phone}'
+    },
+    el: {
+      online: 'Online ραντεβού', sending: 'Αποστολή…', doneShort: 'Κλείστηκε', sub: 'Μανικιούρ · Πεντικιούρ · Περιποίηση προσώπου',
+      date: 'Ημερομηνία', time: 'Ώρα', contacts: 'Στοιχεία', name: 'Το όνομά σας', cta: 'Κλείστε ραντεβού', ctaWa: 'Αποστολή στο WhatsApp', pick: 'Επιλέξτε ώρα',
+      noSlots: 'Δεν υπάρχουν διαθέσιμες ώρες — επιλέξτε άλλη ημέρα', h: 'ώ', min: 'λεπ.',
+      note: 'Κλείνοντας ραντεβού, συμφωνείτε στη χρήση ονόματος και τηλεφώνου για την κράτηση. 24 ώρες πριν θα λάβετε SMS υπενθύμισης.',
+      noteWa: 'Το αίτημα θα ανοίξει στο WhatsApp — η Μαρία θα επιβεβαιώσει την ώρα.',
+      errName: 'Συμπληρώστε το όνομά σας', errPhone: 'Ελέγξτε τον αριθμό τηλεφώνου', errTaken: 'Αυτή η ώρα μόλις κλείστηκε — επιλέξτε άλλη',
+      errMany: 'Έχετε ήδη αρκετά ραντεβού — στείλτε μήνυμα στη Μαρία στο WhatsApp',
+      errNet: 'Η αποστολή απέτυχε. Δοκιμάστε ξανά ή <a href="{wa}" target="_blank" rel="noopener">στείλτε μήνυμα στο WhatsApp</a>.', islandErr: 'Δεν στάλθηκε',
+      doneTitle: 'Το ραντεβού σας κλείστηκε', doneText: 'Η Μαρία σας περιμένει στη Λυκούργου 15', service: 'Υπηρεσία', when: 'Πότε', duration: 'Διάρκεια',
+      ics: 'Προσθήκη στο ημερολόγιο', again: 'Νέο ραντεβού',
+      wa: 'Γεια σας! Θα ήθελα να κλείσω ραντεβού: {svc}, {date} στις {time}. Όνομα: {name}, τηλ.: {phone}'
+    }
+  }[lang];
+
+  var $ = function (sel) { return root.querySelector(sel); };
+  var island = $('.iw__island'), seg = $('[data-iw-seg]'), thumb = $('.iw__thumb'), daysEl = $('[data-iw-days]'), timesEl = $('[data-iw-times]');
+  var form = $('[data-iw-fields]'), nameIn = form.elements.name, phoneIn = form.elements.phone, ccIn = form.elements.cc;
+  var cta = $('[data-iw-cta]'), msg = $('[data-iw-msg]');
+
+  var state = { svc: 0, date: null, time: null, data: null, mode: BOOKING_API ? 'api' : 'wa', last: null };
+  var islandTimer = null;
+
+  /* ---------- помощники ---------- */
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parse(s) { var p = s.split('-'); return new Date(+p[0], p[1] - 1, +p[2], 12); }
+  function fmt(s, opts) { return new Intl.DateTimeFormat(LOCALE, opts).format(parse(s)); }
+  function longDate(s) { return fmt(s, { weekday: 'short', day: 'numeric', month: 'long' }); }
+  function dur(m) { var h = Math.floor(m / 60), r = m % 60; return (h ? h + ' ' + T.h : '') + (h && r ? ' ' : '') + (r ? r + ' ' + T.min : ''); }
+  function addMin(t, m) { var p = t.split(':'), x = +p[0] * 60 + +p[1] + m; return pad(Math.floor(x / 60)) + ':' + pad(x % 60); }
+  function svc() { return SVC[state.svc]; }
+  function haptic() { try { if (navigator.vibrate) { navigator.vibrate(10); } } catch (e) {} }
+  function refreshScroll() { if (window.ScrollTrigger) { window.ScrollTrigger.refresh(); } }
+
+  function setIsland(s, holdMs) {
+    clearTimeout(islandTimer);
+    island.dataset.state = s;
+    if (holdMs) { islandTimer = setTimeout(function () { island.dataset.state = 'idle'; }, holdMs); }
+  }
+
+  /* резерв без API: Пн–Сб 09:00–21:00, шаг 30 мин, не раньше чем через 2 часа */
+  function localAvailability() {
+    var out = {}, now = new Date(), earliest = now.getTime() + 120 * 60000;
+    SVC.forEach(function (s) {
+      out[s.id] = [];
+      for (var i = 0; i < 21; i++) {
+        var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i), slots = [];
+        if (d.getDay() !== 0) {
+          for (var t = 9 * 60; t + s.min <= 21 * 60; t += 30) {
+            if (new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, t).getTime() >= earliest) { slots.push(pad(Math.floor(t / 60)) + ':' + pad(t % 60)); }
+          }
+        }
+        out[s.id].push({ date: iso(d), slots: slots });
+      }
+    });
+    return out;
+  }
+
+  /* ---------- отрисовка ---------- */
+  root.querySelectorAll('[data-iw-t]').forEach(function (el) { el.textContent = T[el.dataset.iwT]; });
+  nameIn.placeholder = T.name;
+  nameIn.setAttribute('aria-label', T.name);
+  phoneIn.setAttribute('aria-label', 'Phone');
+
+  SVC.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('role', 'radio');
+    b.dataset.i = i;
+    b.textContent = s[lang][0];
+    b.title = s[lang][1];
+    seg.appendChild(b);
+  });
+
+  function renderSeg() {
+    seg.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-checked', String(+b.dataset.i === state.svc)); });
+    thumb.style.setProperty('--i', state.svc);
+    $('[data-iw-dur]').textContent = svc()[lang][1] + ' · ' + dur(svc().min);
+  }
+
+  function skeleton() {
+    var h = '';
+    for (var i = 0; i < 8; i++) { h += '<span class="iw__skel"></span>'; }
+    timesEl.innerHTML = h;
+  }
+
+  function renderDays() {
+    var list = state.data[svc().id];
+    var cur = list.filter(function (d) { return d.date === state.date && d.slots.length; })[0];
+    if (!cur) {
+      cur = list.filter(function (d) { return d.slots.length; })[0];
+      state.date = cur ? cur.date : null;
+    }
+    daysEl.innerHTML = list.map(function (d) {
+      return '<button type="button" class="iw__day" data-date="' + d.date + '" aria-pressed="' + (d.date === state.date) + '"' + (d.slots.length ? '' : ' disabled') +
+        ' aria-label="' + longDate(d.date) + '"><small>' + fmt(d.date, { weekday: 'short' }).replace('.', '') + '</small><b>' + parse(d.date).getDate() + '</b></button>';
+    }).join('');
+    $('[data-iw-month]').textContent = state.date ? fmt(state.date, { month: 'long', year: 'numeric' }) : '';
+    var sel = daysEl.querySelector('[aria-pressed="true"]');
+    if (sel) { daysEl.scrollTo({ left: Math.max(0, sel.offsetLeft - daysEl.clientWidth / 2 + sel.clientWidth / 2), behavior: 'smooth' }); }
+  }
+
+  function renderTimes() {
+    var day = state.data[svc().id].filter(function (d) { return d.date === state.date; })[0];
+    var slots = day ? day.slots : [];
+    if (slots.indexOf(state.time) < 0) { state.time = null; }
+    timesEl.innerHTML = slots.length
+      ? slots.map(function (t, i) { return '<button type="button" class="iw__time" data-time="' + t + '" aria-pressed="' + (t === state.time) + '" style="animation-delay:' + Math.min(i * 18, 300) + 'ms">' + t + '</button>'; }).join('')
+      : '<div class="iw__empty">' + T.noSlots + '</div>';
+  }
+
+  function renderCta() {
+    cta.disabled = !state.time;
+    if (!state.time) { cta.textContent = T.pick; return; }
+    cta.innerHTML = '';
+    cta.appendChild(document.createTextNode(state.mode === 'wa' ? T.ctaWa : T.cta));
+    var sm = document.createElement('small');
+    sm.textContent = '· ' + fmt(state.date, { weekday: 'short', day: 'numeric' }) + ', ' + state.time;
+    cta.appendChild(sm);
+  }
+
+  function render() {
+    root.dataset.mode = state.mode;
+    $('[data-iw-note]').textContent = state.mode === 'wa' ? T.noteWa : T.note;
+    renderSeg();
+    renderDays();
+    renderTimes();
+    renderCta();
+  }
+
+  function load() {
+    skeleton();
+    renderSeg();
+    if (!BOOKING_API) { state.data = localAvailability(); render(); return; }
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) { ctl.abort(); } }, 10000);
+    fetch(BOOKING_API.replace(/\/$/, '') + '/availability', { signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); })
+      .then(function (j) { state.mode = 'api'; state.data = j.services; })
+      .catch(function () { state.mode = 'wa'; state.data = localAvailability(); })
+      .then(function () { clearTimeout(timer); render(); refreshScroll(); });
+  }
+
+  /* ---------- выбор ---------- */
+  seg.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b || +b.dataset.i === state.svc) { return; }
+    haptic();
+    state.svc = +b.dataset.i;
+    if (state.data) { render(); } else { renderSeg(); }
+  });
+  daysEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.iw__day');
+    if (!b || b.disabled) { return; }
+    haptic();
+    state.date = b.dataset.date;
+    state.time = null;
+    renderDays(); renderTimes(); renderCta();
+  });
+  timesEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.iw__time');
+    if (!b) { return; }
+    haptic();
+    state.time = b.dataset.time;
+    timesEl.querySelectorAll('.iw__time').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    renderCta();
+    msg.textContent = '';
+  });
+
+  /* телефон: +30 → «69X XXX XXXX» */
+  phoneIn.addEventListener('input', function () {
+    var d = phoneIn.value.replace(/\D/g, '');
+    if (ccIn.value === '+30') {
+      if (d.length > 10 && d.indexOf('30') === 0) { d = d.slice(2); }
+      d = d.slice(0, 10);
+      phoneIn.value = [d.slice(0, 3), d.slice(3, 6), d.slice(6)].filter(Boolean).join(' ');
+    } else {
+      phoneIn.value = d.slice(0, 13);
+    }
+    phoneIn.parentNode.classList.remove('is-bad');
+  });
+  ccIn.addEventListener('change', function () { phoneIn.placeholder = ccIn.value === '+30' ? '69X XXX XXXX' : ''; phoneIn.dispatchEvent(new Event('input')); });
+  nameIn.addEventListener('input', function () { nameIn.parentNode.classList.remove('is-bad'); });
+
+  /* тактильный отклик кнопки */
+  cta.addEventListener('pointerdown', function (e) {
+    if (cta.disabled) { return; }
+    var r = cta.getBoundingClientRect(), s = document.createElement('span');
+    s.className = 'iw__ripple';
+    s.style.left = (e.clientX - r.left) + 'px';
+    s.style.top = (e.clientY - r.top) + 'px';
+    cta.appendChild(s);
+    setTimeout(function () { s.remove(); }, 750);
+  });
+
+  function fail(text, html) {
+    if (html) { msg.innerHTML = text; } else { msg.textContent = text; }
+    form.classList.remove('is-shake');
+    void form.offsetWidth;
+    form.classList.add('is-shake');
+  }
+
+  function waLink(name, phone) {
+    var text = T.wa.replace('{svc}', svc()[lang][1]).replace('{date}', longDate(state.date)).replace('{time}', state.time).replace('{name}', name).replace('{phone}', phone);
+    return 'https://wa.me/' + WA_PHONE + '?text=' + encodeURIComponent(text);
+  }
+
+  cta.addEventListener('click', function () {
+    if (!state.time) { return; }
+    haptic();
+    msg.textContent = '';
+    var name = nameIn.value.trim().replace(/\s+/g, ' ');
+    var digits = phoneIn.value.replace(/\D/g, '');
+    if (ccIn.value !== '+30') { digits = digits.replace(/^0+/, ''); }
+    var phone = ccIn.value + digits;
+    var okName = name.length >= 2;
+    var okPhone = ccIn.value === '+30' ? /^[26]\d{9}$/.test(digits) : digits.length >= 6 && phone.length <= 16;
+    nameIn.parentNode.classList.toggle('is-bad', !okName);
+    phoneIn.parentNode.classList.toggle('is-bad', !okPhone);
+    if (!okName) { fail(T.errName); nameIn.focus(); return; }
+    if (!okPhone) { fail(T.errPhone); phoneIn.focus(); return; }
+
+    if (state.mode === 'wa') { window.open(waLink(name, phone), '_blank', 'noopener'); return; }
+
+    var payload = { service: svc().id, date: state.date, time: state.time, name: name, phone: phone, lang: lang, website: form.elements.website.value };
+    setIsland('loading');
+    cta.classList.add('is-busy');
+    fetch(BOOKING_API.replace(/\/$/, '') + '/book', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        cta.classList.remove('is-busy');
+        if (j.ok) { success(payload, name); return; }
+        setIsland('idle');
+        if (j.error === 'slot_taken') { fail(T.errTaken); state.time = null; load(); }
+        else if (j.error === 'too_many') { fail(T.errMany); }
+        else if (j.error === 'bad_phone') { fail(T.errPhone); phoneIn.parentNode.classList.add('is-bad'); }
+        else if (j.error === 'bad_name') { fail(T.errName); nameIn.parentNode.classList.add('is-bad'); }
+        else { throw new Error(j.error || 'unknown'); }
+      })
+      .catch(function () {
+        cta.classList.remove('is-busy');
+        $('[data-iw-island-err]').textContent = T.islandErr;
+        setIsland('error', 3200);
+        fail(T.errNet.replace('{wa}', waLink(name, phone)), true);
+      });
+  });
+
+  /* ---------- готово ---------- */
+  function success(p, name) {
+    var s = svc();
+    state.last = { date: p.date, time: p.time, min: s.min, title: s[lang][1] };
+    // убираем занятый слот, чтобы «Новая запись» его не показала
+    state.data[s.id].forEach(function (d) { if (d.date === p.date) { d.slots = d.slots.filter(function (t) { return t !== p.time; }); } });
+
+    $('[data-iw-island-when]').textContent = fmt(p.date, { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + p.time;
+    setIsland('done', 5000);
+    var dl = $('[data-iw-ticket]');
+    dl.innerHTML = '';
+    [[T.service, s[lang][1]], [T.when, longDate(p.date) + ', ' + p.time], [T.duration, dur(s.min)], [T.name, name]].forEach(function (row) {
+      var div = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd');
+      dt.textContent = row[0]; dd.textContent = row[1];
+      div.appendChild(dt); div.appendChild(dd); dl.appendChild(div);
+    });
+    root.dataset.view = 'done';
+    refreshScroll();
+  }
+
+  $('[data-iw-ics]').addEventListener('click', function () {
+    var b = state.last;
+    if (!b) { return; }
+    haptic();
+    var stamp = function (date, time) { return date.replace(/-/g, '') + 'T' + time.replace(':', '') + '00'; };
+    var esc = function (s) { return s.replace(/[\\,;]/g, function (c) { return '\\' + c; }); };
+    var ics = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//MS Nails Academy//Booking//EN', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
+      'UID:' + Date.now() + '@msnails.academy',
+      'DTSTAMP:' + new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z',
+      'DTSTART;TZID=Europe/Athens:' + stamp(b.date, b.time),
+      'DTEND;TZID=Europe/Athens:' + stamp(b.date, addMin(b.time, b.min)),
+      'SUMMARY:' + esc('MS Nails Academy · ' + b.title),
+      'LOCATION:' + esc(ADDRESS),
+      'BEGIN:VALARM', 'TRIGGER:-PT2H', 'ACTION:DISPLAY', 'DESCRIPTION:MS Nails Academy', 'END:VALARM',
+      'END:VEVENT', 'END:VCALENDAR'
+    ].join('\r\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
+    a.download = 'ms-nails-academy.ics';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  });
+
+  $('[data-iw-again]').addEventListener('click', function () {
+    root.dataset.view = 'form';
+    state.time = null;
+    setIsland('idle');
+    load();
+  });
+
+  load();
 })();
 </script>
 </body>

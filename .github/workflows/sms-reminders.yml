@@ -1,0 +1,62 @@
+# SMS-напоминания клиентам за 24 часа до визита (на греческом), см. booking/README.md
+name: SMS reminders
+
+on:
+  schedule:
+    # каждые 15 минут; «некруглые» минуты — GitHub реже задерживает такие запуски
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Только показать, кому ушло бы SMS (без отправки)'
+        type: boolean
+        default: true
+
+concurrency:
+  group: sms-reminders
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write   # для шага keepalive ниже
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: booking
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Send reminders
+        run: node booking/reminder/send-reminders.mjs
+        env:
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+          BOOKINGS_TOKEN: ${{ secrets.BOOKINGS_TOKEN }}
+          BOOKINGS_REPO: ${{ vars.BOOKINGS_REPO || 'rustams060575-bot/ms-nails-bookings' }}
+          SMS_PROVIDER: ${{ vars.SMS_PROVIDER || 'smsto' }}
+          SMS_SENDER_ID: ${{ vars.SMS_SENDER_ID || 'MSNails' }}
+          SMSTO_API_KEY: ${{ secrets.SMSTO_API_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ vars.TWILIO_FROM }}
+          TWILIO_MESSAGING_SERVICE_SID: ${{ vars.TWILIO_MESSAGING_SERVICE_SID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+      # GitHub отключает cron в публичных репозиториях после 60 дней без коммитов.
+      # Раз в сутки «переподтверждаем» workflow, чтобы напоминания не остановились.
+      - name: Keepalive
+        if: github.event_name == 'schedule'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(date -u +%H)" = "00" ]; then
+            gh api -X PUT "repos/${{ github.repository }}/actions/workflows/sms-reminders.yml/enable"
+          fi
