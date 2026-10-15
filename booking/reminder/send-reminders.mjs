@@ -85,6 +85,10 @@ async function alertMaria(b, err) {
 }
 
 async function main() {
+  if (!env.BOOKINGS_TOKEN) {
+    console.log('BOOKINGS_TOKEN не задан — напоминания ещё не настроены (booking/README.md, шаг 6). Пропускаю.');
+    return;
+  }
   const store = createStore({
     token: env.BOOKINGS_TOKEN,
     repo: env.BOOKINGS_REPO,
