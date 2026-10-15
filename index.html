@@ -203,9 +203,9 @@ body.menu-open .header .logo img{filter:none}
 .hero__tag{font-family:var(--display);text-transform:var(--dcase);letter-spacing:var(--dtrack);font-style:italic;font-weight:400;font-size:calc(clamp(22px,2.4vw,34px) * var(--ds));color:var(--gold-deep);max-width:22em}
 .hero__text{margin:18px auto 0;max-width:30em;font-size:clamp(16px,1.2vw,18px);color:var(--ink-soft);font-weight:500}
 .hero__row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:16px 26px;margin-top:36px}
-.hero__corner{position:absolute;z-index:3;bottom:28px;font-size:11.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-text)}
+.hero__corner{position:absolute;z-index:6;bottom:22px;padding:9px 16px;border-radius:999px;background:rgba(236,232,223,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 18px -10px rgba(70,56,30,.35);font-size:11.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-text)}
 .hero__corner--l{left:var(--gutter)}.hero__corner--r{right:var(--gutter)}
-.hero__scroll{position:absolute;left:50%;bottom:22px;z-index:3;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-text)}
+.hero__scroll{position:absolute;left:50%;bottom:22px;z-index:6;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-text)}
 .hero__scroll i{width:1px;height:46px;background:rgba(111,93,46,.2);position:relative;overflow:hidden}
 .hero__scroll i::after{content:"";position:absolute;left:0;top:0;width:100%;height:40%;background:var(--gold-text);animation:drip 2.2s var(--ease) infinite}
 @keyframes drip{0%{transform:translateY(-100%)}100%{transform:translateY(260%)}}
@@ -1407,7 +1407,8 @@ var I18N = {
     gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: '+=100%', scrub: true, pin: true, pinSpacing: false, onEnterBack: function () { setHeaderTheme('light'); } } })
       .to('.blind', { rotationY: 0, stagger: .005, ease: 'power3.out', duration: .6 }, 0)
       .to('.hero__content', { y: -80, opacity: .15, ease: 'none', duration: .6 }, 0)
-      .to('.hero__media', { scale: .94, ease: 'none', duration: .6 }, 0);
+      .to('.hero__media', { scale: .94, ease: 'none', duration: .6 }, 0)
+      .to(['.hero__corner', '.hero__scroll'], { opacity: 0, ease: 'none', duration: .25 }, .2);
   }
 
   /* ============ ПОРТАЛ: вход в арку → лента вбок (используется дважды) ============ */
