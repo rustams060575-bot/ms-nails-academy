@@ -16,9 +16,8 @@
   ЯЗЫКИ: переключатель в шапке (?lang=ru | en | el). Переводы — объект I18N; услуги и прайс —
   массивы SERVICES и PRICES в скрипте внизу.
 
-  ФОТО: атрибут data-photo="имя" = слот. Файл photos/имя.jpg (jpeg/png/webp) подставится сам.
-  Галерея «Избранное» — photos/works-1 (блок I) и photos/works-2 (блок II), без Tilda.
-  Список слотов: photos/README.txt. Музыка: photos/music.mp3 заменит текущий трек.
+  ФОТО, ВИДЕО, МУЗЫКА, ШРИФТЫ: всё лежит в репозитории (photos/, fonts/), внешних хостингов нет.
+  Чтобы заменить фото — положите новый файл под тем же именем. Карта файлов: photos/README.txt.
 
   МУЗЫКА: как на Tilda-сайте — пункт «Вайб» в шапке (десктоп) и в меню (телефон).
 
@@ -28,14 +27,13 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://static.tildacdn.net">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Manrope:wght@400;500;600&family=Noto+Serif+Display:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.21/dist/lenis.css">
 
 <style>
 /* ============ BRITTANY — ТОЛЬКО ЛАТИНИЦА ============ */
-@font-face{font-family:'MSQ Brittany';src:url('https://static.tildacdn.net/tild3034-6439-4935-b733-633337643431/Britney-Light.woff2') format('woff2');font-weight:300;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212}
-@font-face{font-family:'MSQ Brittany';src:url('https://static.tildacdn.net/tild6133-3538-4230-a561-376364303032/Britney-Regular.woff2') format('woff2');font-weight:400;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212}
+@font-face{font-family:'MSQ Brittany';src:url('fonts/Britney-Light.woff2') format('woff2');font-weight:300;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212}
+@font-face{font-family:'MSQ Brittany';src:url('fonts/Britney-Regular.woff2') format('woff2');font-weight:400;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212}
 
 /* ============ ТОКЕНЫ ============ */
 :root{
@@ -514,13 +512,13 @@ body.menu-open .header .logo img{filter:none}
 
 <div class="loader" aria-hidden="true">
   <div>
-    <div class="loader__logo"><img data-photo="logo" src="https://static.tildacdn.net/tild3535-3966-4265-b664-363234666234/noroot.png" alt=""></div>
+    <div class="loader__logo"><img src="photos/logo.png" alt=""></div>
     <div class="loader__bar"><i></i></div>
     <div class="loader__count">000</div>
   </div>
 </div>
 <div class="progress" aria-hidden="true"></div>
-<audio id="bgm" src="https://files.catbox.moe/oafb56.mp3" loop preload="none" playsinline></audio>
+<audio id="bgm" src="photos/music.mp3" loop preload="none" playsinline></audio>
 
 <!-- ============ ШАПКА ============ -->
 <header class="header">
@@ -537,7 +535,7 @@ body.menu-open .header .logo img{filter:none}
       <button class="burger" aria-label="Menu" aria-expanded="false"><span></span></button>
       <button class="music-mini" type="button" aria-label="Music off"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
     </div>
-    <a href="#top" class="logo" data-scroll aria-label="MS Nails Academy"><img data-photo="logo" src="https://static.tildacdn.net/tild3535-3966-4265-b664-363234666234/noroot.png" alt="MS Nails Academy"></a>
+    <a href="#top" class="logo" data-scroll aria-label="MS Nails Academy"><img src="photos/logo.png" alt="MS Nails Academy"></a>
     <div class="header__right">
       <div class="socials">
         <a href="https://www.facebook.com/share/1c5vxPRgHh/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21z"/></svg></a>
@@ -572,7 +570,7 @@ body.menu-open .header .logo img{filter:none}
 
   <!-- ============ 1. HERO ============ -->
   <section class="hero" data-theme="light">
-    <div class="hero__media"><img data-photo="hero" src="https://static.tildacdn.net/tild3662-6164-4739-a538-666138623362/photo_2026-08-11_06-.jpg" alt="" fetchpriority="high"></div>
+    <div class="hero__media"><img src="photos/hero.jpg" alt="" fetchpriority="high"></div>
     <div class="container hero__content">
       <span class="eyebrow" data-i18n="hero.eyebrow">Философия эстетики в Афинах</span>
       <h1 class="hero__title" data-hero="chars">Maria Semenova</h1>
@@ -603,7 +601,7 @@ body.menu-open .header .logo img{filter:none}
       </div>
     </div>
     <div class="portal__arch">
-      <video data-video="portal-video" src="https://static.tildacdn.net/vide6634-3965-4530-a639-623761613661/08112.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      <video src="photos/portal-video.mp4" autoplay muted loop playsinline preload="metadata"></video>
       <div class="portal__shade"></div>
       <div class="portal__line"></div>
     </div>
@@ -639,7 +637,7 @@ body.menu-open .header .logo img{filter:none}
   <section class="about" id="about" data-theme="light">
     <div class="container about__grid">
       <div class="about__photo">
-        <div class="reveal-img" data-reveal><img data-photo="about-maria" src="https://static.tildacdn.one/tild6435-6363-4337-a364-366333336361/noroot.png" alt="Maria Semenova" loading="lazy"></div>
+        <div class="reveal-img" data-reveal><img src="photos/about-maria.png" alt="Maria Semenova" loading="lazy"></div>
         <div class="about__tag" data-fade><i></i><span data-i18n="about.tag">Топ-мастер · эстетика ногтей</span></div>
       </div>
       <div>
@@ -679,12 +677,12 @@ body.menu-open .header .logo img{filter:none}
         <path d="M200 92 C 236 150, 236 270, 200 318 C 164 270, 164 150, 200 92 Z" opacity=".6"/>
       </svg>
     </div>
-    <div class="float float--1"><img data-photo="vibe-1" src="https://static.tildacdn.net/tild3639-6335-4665-a165-316634366238/photo_2026-09-05_11-.jpg" alt="" loading="lazy"></div>
-    <div class="float float--2"><img data-photo="vibe-2" src="https://static.tildacdn.net/tild6433-3763-4563-a366-313733376538/sovagpt_178681067477.jpeg" alt="" loading="lazy"></div>
-    <div class="float float--3"><img data-photo="vibe-3" src="https://static.tildacdn.one/tild6361-6663-4063-a634-353734616137/IMG_3290.jpeg" alt="" loading="lazy"></div>
-    <div class="float float--4"><img data-photo="vibe-4" src="https://static.tildacdn.net/tild6533-3966-4735-b938-663534653333/photo_2026-09-05_11-.jpg" alt="" loading="lazy"></div>
-    <div class="float float--5"><img data-photo="vibe-5" src="https://static.tildacdn.net/tild6664-3837-4565-a538-386666373234/photo_2026-09-05_11-.jpg" alt="" loading="lazy"></div>
-    <div class="float float--6"><img data-photo="vibe-6" src="https://static.tildacdn.one/tild6466-6466-4933-a637-363634303339/IMG_3296.jpeg" alt="" loading="lazy"></div>
+    <div class="float float--1"><img src="photos/vibe/vibe-1.jpg" alt="" loading="lazy"></div>
+    <div class="float float--2"><img src="photos/vibe/vibe-2.jpg" alt="" loading="lazy"></div>
+    <div class="float float--3"><img src="photos/vibe/vibe-3.jpg" alt="" loading="lazy"></div>
+    <div class="float float--4"><img src="photos/vibe/vibe-4.jpg" alt="" loading="lazy"></div>
+    <div class="float float--5"><img src="photos/vibe/vibe-5.jpg" alt="" loading="lazy"></div>
+    <div class="float float--6"><img src="photos/vibe/vibe-6.jpg" alt="" loading="lazy"></div>
     <div class="vibe__text">
       <div>
         <span class="eyebrow" data-fade data-i18n="vibe.eyebrow">Маникюр · Педикюр · Уход за лицом</span>
@@ -722,7 +720,7 @@ body.menu-open .header .logo img{filter:none}
       </div>
     </div>
     <div class="portal__arch">
-      <img data-photo="studio" src="https://static.tildacdn.net/tild3165-6634-4165-b834-383066343063/photo_2026-08-15_18-.jpg" alt="MS Nails Academy studio">
+      <img src="photos/studio.jpg" alt="MS Nails Academy studio">
       <div class="portal__shade"></div>
       <div class="portal__line"></div>
     </div>
@@ -744,10 +742,10 @@ body.menu-open .header .logo img{filter:none}
           <p data-i18n="studio.p2">От классической базы до передовых техник моделирования, работы с верхними формами и архитектуры Ultra Slim. Каждый этап обучения — это инвестиция в безопасность, анатомическую точность и безупречный визуальный стиль ваших рук.</p>
           <div class="chips"><span>SvitolArt</span><span>MIR Nails Academy</span><span data-i18n="studio.a3">Школа Виктории Романовой</span><span data-i18n="studio.a4">Школа Мадины Муриевой</span></div>
         </div></article>
-        <figure class="card card--cert" data-item data-lightbox="certs"><div class="card__box"><img data-photo="cert-1" src="https://static.tildacdn.one/tild6431-3430-4631-b132-653836353134/photo_2026-08-16_10-.jpg" alt="Salon Modeling"><div class="card__body"><span class="card__num">No. 01</span><h3 class="card__title display">Salon Modeling</h3></div></div></figure>
-        <figure class="card card--cert" data-item data-lightbox="certs"><div class="card__box"><img data-photo="cert-2" src="https://static.tildacdn.one/tild3133-3633-4261-a666-633064306262/photo_2026-08-16_10-.jpg" alt="Nail Master Artist"><div class="card__body"><span class="card__num">No. 02</span><h3 class="card__title display">Nail Master Artist</h3></div></div></figure>
-        <figure class="card card--cert" data-item data-lightbox="certs"><div class="card__box"><img data-photo="cert-3" src="https://static.tildacdn.one/tild6439-3232-4439-b337-323530623437/photo_2026-08-16_10-.jpg" alt="Hardware Pedicure"><div class="card__body"><span class="card__num">No. 03</span><h3 class="card__title display">Hardware Pedicure</h3></div></div></figure>
-        <figure class="card card--cert" data-item data-lightbox="certs"><div class="card__box"><img data-photo="cert-4" src="https://static.tildacdn.one/tild3364-3036-4562-b965-353933313461/photo_2026-08-16_10-.jpg" alt="Ultra Slim Art"><div class="card__body"><span class="card__num">No. 04</span><h3 class="card__title display">Ultra Slim Art</h3></div></div></figure>
+        <figure class="card card--cert" data-item data-lightbox="certs"><div class="card__box"><img src="photos/certs/cert-1.jpg" alt="Salon Modeling"><div class="card__body"><span class="card__num">No. 01</span><h3 class="card__title display">Salon Modeling</h3></div></div></figure>
+        <figure class="card card--cert" data-item data-lightbox="certs"><div class="card__box"><img src="photos/certs/cert-2.jpg" alt="Nail Master Artist"><div class="card__body"><span class="card__num">No. 02</span><h3 class="card__title display">Nail Master Artist</h3></div></div></figure>
+        <figure class="card card--cert" data-item data-lightbox="certs"><div class="card__box"><img src="photos/certs/cert-3.jpg" alt="Hardware Pedicure"><div class="card__body"><span class="card__num">No. 03</span><h3 class="card__title display">Hardware Pedicure</h3></div></div></figure>
+        <figure class="card card--cert" data-item data-lightbox="certs"><div class="card__box"><img src="photos/certs/cert-4.jpg" alt="Ultra Slim Art"><div class="card__body"><span class="card__num">No. 04</span><h3 class="card__title display">Ultra Slim Art</h3></div></div></figure>
         <article class="card card--paper"><div class="card__box">
           <span class="eyebrow" data-i18n="ex.foot">Проверенная экспертность</span>
           <blockquote data-i18n="studio.quote">«Для меня маникюр — это не просто уход, это проявление вашей индивидуальности, где нет мелочей».</blockquote>
@@ -901,7 +899,7 @@ body.menu-open .header .logo img{filter:none}
       </div>
       <div data-fade>
         <div class="book__card">
-          <div class="book__avatar"><img data-photo="avatar" src="https://static.tildacdn.net/tild3762-3663-4331-b437-623135346262/noroot.png" alt="" loading="lazy"></div>
+          <div class="book__avatar"><img src="photos/avatar.png" alt="" loading="lazy"></div>
           <div class="book__who"><b data-i18n="bk.name">Мария Семенова</b><span data-i18n="bk.role">Специалист бьюти-сферы</span></div>
         </div>
         <div class="book__btns">
@@ -937,25 +935,25 @@ body.menu-open .header .logo img{filter:none}
    КОНТЕНТ: УСЛУГИ, ПРАЙС, ПЕРЕВОДЫ
    ===================================================================== */
 var SERVICES = [
-  { photo: 'service-01', img: 'https://static.tildacdn.net/tild3663-3434-4136-b137-623361643830/IMG_3333.jpeg', price: 15,
+  { img: 'photos/services/service-01.jpg', price: 15,
     ru: 'Маникюр Russian &amp; Rubber Base', en: 'Russian Manicure &amp; Rubber Base', el: 'Μανικιούρ Russian &amp; Rubber Base' },
-  { photo: 'service-02', img: 'https://static.tildacdn.net/tild3738-6538-4065-b434-316535656430/IMG_3331.jpeg', price: 20,
+  { img: 'photos/services/service-02.jpg', price: 20,
     ru: 'Педикюр Spa и терапевтический уход', en: 'Spa Pedicure and Therapeutic Care', el: 'Πεντικιούρ Spa και θεραπευτική φροντίδα' },
-  { photo: 'service-03', img: 'https://static.tildacdn.net/tild6665-3433-4130-a565-373434383736/noroot.png', price: 34,
+  { img: 'photos/services/service-03.png', price: 34,
     ru: 'Наращивание ногтей (Gel / Acrygel)', en: 'Nail Extensions (Gel / Acrygel)', el: 'Επέκταση νυχιών (Gel / Acrygel)' },
-  { photo: 'service-04', img: 'https://static.tildacdn.net/tild3462-3261-4830-b463-386264346137/noroot.png', price: 29,
+  { img: 'photos/services/service-04.png', price: 29,
     ru: 'Коррекция и укрепление натуральной пластины', en: 'Natural Nail Correction and Strengthening', el: 'Διόρθωση και ενίσχυση φυσικής πλάκας' },
-  { photo: 'service-05', img: 'https://static.tildacdn.net/tild6231-3861-4662-b837-663731643633/noroot.png', price: 2,
+  { img: 'photos/services/service-05.png', price: 2,
     ru: 'Ремонт ногтей и архитектурное восстановление', en: 'Nail Repair and Architectural Reconstruction', el: 'Επισκευή νυχιών και αρχιτεκτονική αποκατάσταση' },
-  { photo: 'service-06', img: 'https://static.tildacdn.net/tild3135-3564-4639-b264-323964356234/photo_2026-09-05_11-.jpg', price: 2,
+  { img: 'photos/services/service-06.jpg', price: 2,
     ru: 'Сложные дизайны и художественная роспись', en: 'Complex Designs and Nail Art', el: 'Σύνθετα σχέδια και καλλιτεχνική ζωγραφική' },
-  { photo: 'service-07', img: 'https://static.tildacdn.net/tild3761-3930-4432-b633-313762383234/IMG_3332.jpeg', price: 23,
+  { img: 'photos/services/service-07.jpg', price: 23,
     ru: 'Френч, минимализм и эстетичный нейл-дизайн', en: 'French, Minimalism and Aesthetic Nail Design', el: 'Γαλλικό, μινιμαλισμός και αισθητικό nail design' },
-  { photo: 'service-08', img: 'https://static.tildacdn.net/tild3663-3064-4432-a637-393732633061/photo_2026-08-11_13-.jpg', price: 5,
+  { img: 'photos/services/service-08.jpg', price: 5,
     ru: 'Аппаратное снятие покрытий (руки / ноги)', en: 'E-file Gel Removal (Hands / Feet)', el: 'Αφαίρεση υλικού με τροχό (χέρια / πόδια)' },
-  { photo: 'service-09', icon: 'brow', price: 8, priceLabel: { ru: 'брови нитью', en: 'eyebrow threading', el: 'φρύδια με κλωστή' },
+  { icon: 'brow', price: 8, priceLabel: { ru: 'брови нитью', en: 'eyebrow threading', el: 'φρύδια με κλωστή' },
     ru: 'Профессиональный уход за бровями', en: 'Professional Eyebrow Care', el: 'Επαγγελματική φροντίδα φρυδιών' },
-  { photo: 'service-10', icon: 'drop', price: 5,
+  { icon: 'drop', price: 5,
     ru: 'Нитевая эпиляция лица', en: 'Face Threading', el: 'Αποτρίχωση προσώπου με κλωστή' }
 ];
 
@@ -1142,7 +1140,7 @@ var I18N = {
   var html = '';
   SERVICES.forEach(function (s, i) {
     var label = s.priceLabel ? s.priceLabel[lang] : t('svc.from');
-    var media = s.icon ? '<span class="card__icon">' + ICONS[s.icon] + '</span>' : '<img data-photo="' + s.photo + '" src="' + s.img + '" alt="" loading="lazy">';
+    var media = s.icon ? '<span class="card__icon">' + ICONS[s.icon] + '</span>' : '<img src="' + s.img + '" alt="" loading="lazy">';
     html += '<article class="card' + (s.icon ? ' card--text' : '') + '" data-item><div class="card__box">' + media +
       '<span class="card__num">' + String(i + 1).padStart(2, '0') + '</span><div class="card__body"><h3 class="card__title display">' + s[lang] +
       '</h3><div class="card__price">' + label + ' <b>' + s.price + ' €</b></div></div></div></article>';
@@ -1173,29 +1171,6 @@ var I18N = {
   document.querySelector('.tabs').innerHTML = tabsHtml;
   document.querySelector('.panels').innerHTML = panelsHtml;
 
-  /* ---------- ФОТО/ВИДЕО ИЗ ПАПКИ photos/ ---------- */
-  var EXT = ['jpg', 'jpeg', 'png', 'webp'];
-  function probe(slot, done) {
-    var i = 0;
-    (function next() {
-      if (i >= EXT.length) { return; }
-      var url = 'photos/' + slot + '.' + EXT[i++];
-      var im = new Image();
-      im.onload = function () { done(url); };
-      im.onerror = next;
-      im.src = url;
-    })();
-  }
-  var slots = {};
-  document.querySelectorAll('[data-photo]').forEach(function (el) { (slots[el.dataset.photo] = slots[el.dataset.photo] || []).push(el); });
-  Object.keys(slots).forEach(function (slot) { probe(slot, function (url) { slots[slot].forEach(function (el) { el.src = url; }); }); });
-  document.querySelectorAll('[data-video]').forEach(function (v) {
-    var test = document.createElement('video');
-    var url = 'photos/' + v.dataset.video + '.mp4';
-    test.preload = 'metadata';
-    test.onloadedmetadata = function () { v.src = url; if (v.play) { v.play().catch(function () {}); } };
-    test.src = url;
-  });
 })();
 </script>
 
@@ -1311,12 +1286,6 @@ var I18N = {
     links.forEach(function (a) { a.insertAdjacentHTML('beforeend', EQ); });
     var canFade = (function () { try { var a = new Audio(); a.volume = .5; return Math.abs(a.volume - .5) < .01; } catch (e) { return false; } })();
     var playing = false, timer = null;
-
-    /* свой трек: photos/music.mp3 */
-    var p = new Audio();
-    p.preload = 'metadata';
-    p.onloadedmetadata = function () { if (!playing) { audio.src = 'photos/music.mp3'; } };
-    p.src = 'photos/music.mp3';
 
     function ui(on) {
       playing = on;
