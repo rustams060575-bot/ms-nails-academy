@@ -17,6 +17,7 @@
   массивы SERVICES и PRICES в скрипте внизу.
 
   ФОТО: атрибут data-photo="имя" = слот. Файл photos/имя.jpg (jpeg/png/webp) подставится сам.
+  Галерея «Избранное» — photos/works-1 (блок I) и photos/works-2 (блок II), без Tilda.
   Список слотов: photos/README.txt. Музыка: photos/music.mp3 заменит текущий трек.
 
   МУЗЫКА: как на Tilda-сайте — пункт «Вайб» в шапке (десктоп) и в меню (телефон).
@@ -28,7 +29,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://static.tildacdn.net">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Forum&family=Manrope:wght@400;500;600&family=Noto+Serif+Display:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Manrope:wght@400;500;600&family=Noto+Serif+Display:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.21/dist/lenis.css">
 
 <style>
@@ -62,8 +63,6 @@
   --gutter:clamp(18px,4vw,56px);
   --ease:cubic-bezier(.22,1,.36,1);
 }
-html[data-font="classic"]{--display:'Noto Serif Display','Times New Roman',serif;--ds:1;--dw:300}
-html[data-font="antique"]{--display:'Forum','Noto Serif Display',serif;--ds:.84;--dcase:uppercase;--dtrack:.04em}
 html[lang="el"]{--display:'Noto Serif Display','Times New Roman',serif;--ds:.96;--dw:300}
 
 /* ============ БАЗА ============ */
@@ -83,7 +82,6 @@ p{margin:0}
 .container{width:100%;max-width:1320px;margin:0 auto;padding:0 var(--gutter)}
 .display{font-family:var(--display);font-weight:var(--dw);text-transform:var(--dcase);letter-spacing:var(--dtrack)}
 .display em{font-family:var(--display);font-style:italic;font-weight:300;text-transform:none;letter-spacing:0}
-html[data-font="antique"]:not([lang="el"]) .display em{font-family:'Cormorant Garamond',serif;font-size:1.12em}
 .h2{font-size:calc(clamp(40px,5.6vw,84px) * var(--ds));color:var(--gold-deep)}
 .h2 em{color:var(--gold)}
 .eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:12.5px;font-weight:600;letter-spacing:var(--track);text-transform:uppercase;color:var(--gold-text)}
@@ -205,7 +203,6 @@ body.menu-open .header .logo img{filter:none}
 .hero__content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-top:60px}
 .hero__title{font-family:var(--brand);font-weight:300;font-size:clamp(64px,12.5vw,200px);line-height:.9;margin:26px 0 22px;color:var(--ink);letter-spacing:0}
 .hero__tag{font-family:var(--display);text-transform:var(--dcase);letter-spacing:var(--dtrack);font-style:italic;font-weight:400;font-size:calc(clamp(22px,2.4vw,34px) * var(--ds));color:var(--gold-deep);max-width:22em}
-html[data-font="antique"]:not([lang="el"]) .hero__tag{font-style:normal;letter-spacing:.12em;font-size:clamp(16px,1.7vw,23px)}
 .hero__text{margin:18px auto 0;max-width:30em;font-size:clamp(16px,1.2vw,18px);color:var(--ink-soft);font-weight:500}
 .hero__row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:16px 26px;margin-top:36px}
 .hero__corner{position:absolute;z-index:3;bottom:28px;font-size:11.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-text)}
@@ -323,7 +320,6 @@ html[data-font="antique"]:not([lang="el"]) .hero__tag{font-style:normal;letter-s
 .checks li{display:flex;gap:14px;align-items:baseline;font-size:16.5px;color:var(--ink);padding:15px 0;border-bottom:1px solid var(--line)}
 .checks li::before{content:"";flex:0 0 12px;height:7px;border-left:1.5px solid var(--gold);border-bottom:1.5px solid var(--gold);transform:rotate(-45deg) translateY(-3px)}
 .quote{margin:44px 0 36px;padding-left:26px;border-left:1px solid var(--gold);font-family:var(--display);font-style:italic;font-weight:400;font-size:calc(clamp(21px,1.9vw,27px) * var(--ds));line-height:1.45;color:var(--ink)}
-html[data-font="antique"]:not([lang="el"]) .quote{font-family:'Cormorant Garamond',serif;font-size:clamp(23px,2vw,29px)}
 .about__cta{display:flex;flex-wrap:wrap;align-items:center;gap:18px 26px}
 .about__cta p{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-text)}
 
@@ -386,22 +382,18 @@ html[data-font="antique"]:not([lang="el"]) .quote{font-family:'Cormorant Garamon
 .gallery__title{font-size:calc(clamp(56px,10vw,160px) * var(--ds));line-height:.95;margin:18px 0 22px;color:var(--gold-deep)}
 .gallery__head .lead{margin:0 auto}
 .gallery__divider{width:1px;height:70px;background:var(--gold);margin:30px auto 0;transform-origin:top}
-.gallery__grid{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(12px,1.6vw,22px);align-items:start}
+.works + .works{margin-top:clamp(90px,11vw,160px)}
+.works__label{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:clamp(36px,4.5vw,64px);font-family:var(--display);font-size:calc(26px * var(--ds));letter-spacing:.2em;color:var(--gold-deep)}
+.works__label i{width:clamp(40px,8vw,90px);height:1px;background:var(--gold)}
+.gallery__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.8vw,26px);align-items:start}
 .gitem{position:relative;cursor:zoom-in}
-.gitem .reveal-img{transition:box-shadow .6s var(--ease)}
+.gitem:nth-child(3n+2){margin-top:12%}
+.gitem .reveal-img{aspect-ratio:3/4;transition:box-shadow .6s var(--ease)}
+.gitem:nth-child(6n+1) .reveal-img,.gitem:nth-child(6n+5) .reveal-img{border-radius:999px 999px var(--r) var(--r)}
 .gitem:hover .reveal-img{box-shadow:var(--shadow-hover)}
 .gitem .reveal-img img{transition:transform 1.4s var(--ease)}
 .gitem:hover .reveal-img img{transform:scale(1.05)!important}
-.g1{grid-column:1/6}.g1 .reveal-img{aspect-ratio:4/5;border-radius:999px 999px var(--r) var(--r)}
-.g2{grid-column:7/13;margin-top:14%}.g2 .reveal-img{aspect-ratio:16/10}
-.g3{grid-column:2/5;margin-top:-6%}.g3 .reveal-img{aspect-ratio:3/4}
-.g4{grid-column:6/9;margin-top:8%}.g4 .reveal-img{aspect-ratio:3/4;border-radius:999px 999px var(--r) var(--r)}
-.g5{grid-column:10/13;margin-top:-4%}.g5 .reveal-img{aspect-ratio:3/4}
-.g6{grid-column:1/7;margin-top:6%}.g6 .reveal-img{aspect-ratio:16/10}
-.g7{grid-column:8/12;margin-top:12%}.g7 .reveal-img{aspect-ratio:4/5;border-radius:999px 999px var(--r) var(--r)}
-.g8{grid-column:3/7;margin-top:4%}.g8 .reveal-img{aspect-ratio:3/4}
-.g9{grid-column:8/13;margin-top:-10%}.g9 .reveal-img{aspect-ratio:1}
-@media (max-width:767px){.g1{grid-column:1/8}.g2{grid-column:4/13;margin-top:-8%}.g3{grid-column:1/7;margin-top:6%}.g4{grid-column:7/13;margin-top:22%}.g5{grid-column:2/9;margin-top:6%}.g6{grid-column:1/13;margin-top:6%}.g7{grid-column:6/13;margin-top:6%}.g8{grid-column:1/7;margin-top:-20%}.g9{grid-column:3/11;margin-top:6%}}
+@media (max-width:767px){.gallery__grid{grid-template-columns:repeat(2,1fr)}.gitem:nth-child(3n+2){margin-top:0}.gitem:nth-child(2n){margin-top:16%}.gitem:nth-child(6n+5) .reveal-img{border-radius:var(--r)}.gitem:nth-child(4n+1) .reveal-img,.gitem:nth-child(4n+4) .reveal-img{border-radius:999px 999px var(--r) var(--r)}}
 .gallery__foot{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:clamp(60px,8vw,110px)}
 .signature{font-family:var(--brand);font-weight:300;font-size:clamp(38px,4.4vw,60px);color:var(--gold-deep);line-height:1}
 
@@ -417,7 +409,6 @@ html[data-font="antique"]:not([lang="el"]) .quote{font-family:'Cormorant Garamon
 .rcard-wrap{position:absolute;top:0;z-index:3;will-change:transform}
 .rcard{display:block;width:clamp(250px,22vw,320px);background:var(--taupe);border-radius:999px 999px var(--r) var(--r);padding:70px 28px 30px;text-align:center;box-shadow:var(--shadow-hover)}
 .rcard p{font-family:var(--display);font-style:italic;font-weight:400;font-size:calc(20px * var(--ds));line-height:1.5;margin:16px 0 20px;color:var(--ink)}
-html[data-font="antique"]:not([lang="el"]) .rcard p{font-family:'Cormorant Garamond',serif;font-size:22px}
 .rcard footer{display:flex;align-items:center;justify-content:center;gap:12px;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
 .rcard footer i{width:34px;height:34px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-style:normal;font-family:var(--display);font-size:15px;letter-spacing:0;color:var(--gold-text)}
 .rcard--score{background:var(--gold);color:var(--ink)}
@@ -502,16 +493,6 @@ html[data-font="antique"]:not([lang="el"]) .rcard p{font-family:'Cormorant Garam
 .lightbox__prev{left:20px;top:50%;transform:translateY(-50%)}
 .lightbox__next{right:20px;top:50%;transform:translateY(-50%)}
 .lightbox__count{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:12.5px;letter-spacing:.2em;color:rgba(251,250,246,.75)}
-
-/* ============ ПЕРЕКЛЮЧАТЕЛЬ ШРИФТОВ (для выбора, потом убрать) ============ */
-.fontswitch{position:fixed;left:16px;bottom:16px;z-index:70;display:flex;align-items:center;gap:4px;padding:5px;background:rgba(246,243,236,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
-.fontswitch span{padding:0 8px 0 10px;color:var(--ink-soft)}
-.fontswitch button{padding:8px 12px;border-radius:999px;color:var(--ink-soft);transition:background-color .3s,color .3s}
-.fontswitch button[aria-pressed="true"]{background:var(--gold);color:var(--white)}
-.fontswitch [data-font="couture"]{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.02em;text-transform:none}
-.fontswitch [data-font="classic"]{font-family:'Noto Serif Display',serif;font-size:13px;letter-spacing:.01em;text-transform:none}
-.fontswitch [data-font="antique"]{font-family:'Forum',serif;font-size:13px}
-@media (max-width:560px){.fontswitch span{display:none}.fontswitch button{padding:8px 10px}}
 
 /* ============ REDUCED MOTION ============ */
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
@@ -800,16 +781,44 @@ html[data-font="antique"]:not([lang="el"]) .rcard p{font-family:'Cormorant Garam
         <p class="lead" data-lines data-i18n="ga.lead">Каждая деталь создана с любовью и абсолютным вниманием к вашему комфорту.</p>
         <div class="gallery__divider"></div>
       </div>
-      <div class="gallery__grid">
-        <figure class="gitem g1" data-lightbox="works"><div class="reveal-img" data-reveal><img data-photo="gallery-1" src="https://static.tildacdn.net/tild6665-3433-4130-a565-373434383736/noroot.png" alt="" loading="lazy"></div></figure>
-        <figure class="gitem g2" data-lightbox="works"><div class="reveal-img" data-reveal><img data-photo="gallery-2" src="https://static.tildacdn.net/tild3933-6561-4565-b466-316333376664/photo_2026-08-11_13-.jpg" alt="" loading="lazy"></div></figure>
-        <figure class="gitem g3" data-lightbox="works"><div class="reveal-img" data-reveal><img data-photo="gallery-3" src="https://static.tildacdn.net/tild6139-3863-4839-b263-383431373937/photo_2026-08-14_09-.jpg" alt="" loading="lazy"></div></figure>
-        <figure class="gitem g4" data-lightbox="works"><div class="reveal-img" data-reveal><img data-photo="gallery-4" src="https://static.tildacdn.net/tild3464-3666-4639-b430-353330643438/photo_2026-08-11_13-.jpg" alt="" loading="lazy"></div></figure>
-        <figure class="gitem g5" data-lightbox="works"><div class="reveal-img" data-reveal><img data-photo="gallery-5" src="https://static.tildacdn.net/tild3864-3235-4931-b435-383262393536/photo_2026-09-05_11-.jpg" alt="" loading="lazy"></div></figure>
-        <figure class="gitem g6" data-lightbox="works"><div class="reveal-img" data-reveal><img data-photo="gallery-6" src="https://static.tildacdn.net/tild6132-6538-4437-a131-356638336464/photo_2026-08-11_13-.jpg" alt="" loading="lazy"></div></figure>
-        <figure class="gitem g7" data-lightbox="works"><div class="reveal-img" data-reveal><img data-photo="gallery-7" src="https://static.tildacdn.net/tild3762-3361-4538-b033-656431383937/photo_2026-09-05_11-.jpg" alt="" loading="lazy"></div></figure>
-        <figure class="gitem g8" data-lightbox="works"><div class="reveal-img" data-reveal><img data-photo="gallery-8" src="https://static.tildacdn.net/tild3631-3737-4235-a363-616463353733/photo_2026-08-11_13-.jpg" alt="" loading="lazy"></div></figure>
-        <figure class="gitem g9" data-lightbox="works"><div class="reveal-img" data-reveal><img data-photo="gallery-9" src="https://static.tildacdn.net/tild6231-3861-4662-b837-663731643633/noroot.png" alt="" loading="lazy"></div></figure>
+      <div class="works" data-works>
+        <div class="works__label" data-fade><i></i><span>I</span><i></i></div>
+        <div class="gallery__grid">
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/01.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/02.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/03.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/04.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/05.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/06.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/07.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/08.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/09.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/10.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/11.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/12.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/13.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/14.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/15.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/16.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/17.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-1/18.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+        </div>
+      </div>
+      <div class="works" data-works>
+        <div class="works__label" data-fade><i></i><span>II</span><i></i></div>
+        <div class="gallery__grid">
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/01.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/02.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/03.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/04.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/05.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/06.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/07.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/08.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/09.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/10.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+          <figure class="gitem" data-lightbox="works"><div class="reveal-img" data-reveal><img src="photos/works-2/11.jpg" alt="" loading="lazy" decoding="async"></div></figure>
+        </div>
       </div>
       <div class="gallery__foot">
         <span class="signature" data-fade>Maria Semenova</span>
@@ -922,13 +931,6 @@ html[data-font="antique"]:not([lang="el"]) .rcard p{font-family:'Cormorant Garam
 </div>
 
 <div class="toast" role="status" aria-live="polite" data-i18n="ct.copied">Адрес скопирован</div>
-
-<div class="fontswitch" role="group" aria-label="Font pairing">
-  <span>Aa</span>
-  <button data-font="couture" aria-pressed="true">Couture</button>
-  <button data-font="classic" aria-pressed="false">Classic</button>
-  <button data-font="antique" aria-pressed="false">ANTIQUE</button>
-</div>
 
 <script>
 /* =====================================================================
@@ -1219,17 +1221,6 @@ var I18N = {
   /* звёзды */
   var STAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.6 7L12 17.5 5.8 21.2l1.6-7L2 9.5l7.1-.6z"/></svg>';
   document.querySelectorAll('[data-stars]').forEach(function (s) { s.innerHTML = STAR + STAR + STAR + STAR + STAR; });
-
-  /* шрифтовая пара */
-  var fontBtns = document.querySelectorAll('.fontswitch button');
-  function setFont(name, save) {
-    de.setAttribute('data-font', name);
-    fontBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.font === name)); });
-    if (save) { try { localStorage.setItem('msq-font', name); } catch (e) {} }
-    if (hasGsap && save) { setTimeout(function () { ScrollTrigger.refresh(); }, 350); }
-  }
-  try { var sf = localStorage.getItem('msq-font'); if (sf) { setFont(sf, false); } } catch (e) {}
-  fontBtns.forEach(function (b) { b.addEventListener('click', function () { setFont(b.dataset.font, true); }); });
 
   /* вкладки прайса */
   var tabs = document.querySelectorAll('.tab');
@@ -1550,8 +1541,11 @@ var I18N = {
         .fromTo(img, { scale: 1.5 }, { scale: 1, duration: 1.4, ease: 'power2.out' }, 0);
     });
     gsap.from('.gallery__divider', { scaleY: 0, duration: 1.2, ease: 'power2.out', scrollTrigger: { trigger: '.gallery__divider', start: 'top 90%' } });
-    gsap.utils.toArray('.gitem').forEach(function (item, i) {
-      gsap.to(item, { yPercent: [-6, 8, -10, 4, -5, 6, -8, 5, -4][i] || 0, ease: 'none', scrollTrigger: { trigger: '.gallery__grid', start: 'top bottom', end: 'bottom top', scrub: true } });
+    var cols = window.matchMedia('(max-width: 767px)').matches ? 2 : 3;
+    gsap.utils.toArray('.gallery__grid').forEach(function (grid) {
+      gsap.utils.toArray(grid.children).forEach(function (item, i) {
+        gsap.to(item, { yPercent: [-3, 4, -2][i % cols], ease: 'none', scrollTrigger: { trigger: grid, start: 'top bottom', end: 'bottom top', scrub: true } });
+      });
     });
   }
 
