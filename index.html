@@ -214,7 +214,7 @@ body.menu-open .header .logo img{filter:none}
 .blind{position:absolute;top:0;height:100%;background:var(--bg);transform-origin:left center;transform:rotateY(-90deg);backface-visibility:hidden}
 
 /* ============ ПОРТАЛЫ: вход в арку + лента вбок ============ */
-.portal{position:relative;height:100vh;height:100svh;overflow:hidden;background:var(--bg);color:var(--ink);margin-top:-1px}
+.portal{position:relative;z-index:2;height:100vh;height:100svh;overflow:hidden;background:var(--bg);color:var(--ink);margin-top:-1px}
 .portal__deco{position:absolute;left:50%;top:50%;width:min(92vw,900px);aspect-ratio:1;transform:translate(-50%,-50%);color:var(--gold);opacity:.35;pointer-events:none}
 .portal__deco svg{width:100%;height:100%}
 .portal__intro{position:absolute;inset:0;z-index:2;display:flex;align-items:center}
@@ -1389,7 +1389,9 @@ var I18N = {
       .add(function () { document.querySelector('.loader').remove(); });
   }
 
-  /* ============ HERO: ЖАЛЮЗИ (льняные — перетекают в портал) ============ */
+  /* ============ HERO: ЖАЛЮЗИ (льняные — перетекают в портал) ============
+     pinSpacing:false — портал поднимается поверх закреплённого hero, пока жалюзи закрываются,
+     без пустого экрана между ними. */
   function initBlinds() {
     var hero = document.querySelector('.hero');
     var cover = document.querySelector('.hero__blinds');
@@ -1402,7 +1404,7 @@ var I18N = {
       s.style.width = 'calc(' + (100 / count) + '% + 1px)';
       cover.appendChild(s);
     }
-    gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: '+=110%', scrub: true, pin: true, onEnterBack: function () { setHeaderTheme('light'); } } })
+    gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: '+=100%', scrub: true, pin: true, pinSpacing: false, onEnterBack: function () { setHeaderTheme('light'); } } })
       .to('.blind', { rotationY: 0, stagger: .005, ease: 'power3.out', duration: .6 }, 0)
       .to('.hero__content', { y: -80, opacity: .15, ease: 'none', duration: .6 }, 0)
       .to('.hero__media', { scale: .94, ease: 'none', duration: .6 }, 0);
