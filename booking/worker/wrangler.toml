@@ -7,7 +7,7 @@ compatibility_date = "2025-01-01"
 
 [vars]
 # Сайты, которым разрешено отправлять записи (через запятую)
-ALLOWED_ORIGINS = "https://rustams060575-bot.github.io"
+ALLOWED_ORIGINS = "https://msnails.eu,https://www.msnails.eu,https://ramazanbublik-dot.github.io"
 # Приватный репозиторий, где хранится bookings.json
 BOOKINGS_REPO = "rustams060575-bot/ms-nails-bookings"
 BOOKINGS_PATH = "bookings.json"
