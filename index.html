@@ -250,10 +250,8 @@ body.menu-open .header .logo img{filter:none}
 @keyframes glassSweep{0%{transform:translateX(-160%) skewX(-20deg)}36%,100%{transform:translateX(420%) skewX(-20deg)}}
 @media (prefers-reduced-motion:reduce){.hero__agent::after{animation:none}}
 @media (max-width:767px){.hero__corner{display:none}.hero__agent{padding:0 28px;letter-spacing:.16em}}
-/* жалюзи лежат ПОД текстом (z-index:1 < .hero__content:2): планки больше не пересекают буквы и не дают ряби */
-.hero__blinds{position:absolute;inset:0;z-index:1;pointer-events:none;perspective:1400px}
-/* старт: планки наполовину закрыты (-45°) и мягко затемнены; при скролле раскрываются в лён страницы (#ECE8DF) */
-.blind{position:absolute;top:0;height:100%;background:#D9D1C0;transform-origin:left center;transform:rotateY(-45deg);backface-visibility:hidden}
+.hero__blinds{position:absolute;inset:0;z-index:5;pointer-events:none;perspective:1400px}
+.blind{position:absolute;top:0;height:100%;background:var(--bg);transform-origin:left center;transform:rotateY(-90deg);backface-visibility:hidden}
 
 /* ============ ПОРТАЛЫ: вход в арку + лента вбок ============ */
 .portal{position:relative;z-index:2;height:100vh;height:100svh;overflow:hidden;background:var(--bg);color:var(--ink);margin-top:-1px}
@@ -1675,7 +1673,7 @@ var I18N = {
       cover.appendChild(s);
     }
     gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: '+=100%', scrub: true, pin: true, pinSpacing: false, onEnterBack: function () { setHeaderTheme('light'); } } })
-      .to('.blind', { rotationY: 0, backgroundColor: '#ECE8DF', stagger: .005, ease: 'power3.out', duration: .6 }, 0)
+      .to('.blind', { rotationY: 0, stagger: .005, ease: 'power3.out', duration: .6 }, 0)
       .to('.hero__content', { y: -80, opacity: .15, ease: 'none', duration: .6 }, 0)
       .to('.hero__media', { scale: .94, ease: 'none', duration: .6 }, 0)
       .to('.hero__corner', { opacity: 0, ease: 'none', duration: .25 }, .2);
