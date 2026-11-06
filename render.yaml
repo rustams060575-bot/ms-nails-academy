@@ -1,0 +1,48 @@
+# Render Blueprint — API записи и ИИ-ассистента MS Nails Academy.
+# Подробная инструкция: booking/agent/DEPLOY.md
+#
+# Сайт остаётся на GitHub Pages (msnails.eu). Здесь живёт только API:
+#   /availability, /book, /agent/chat, /healthz
+# Секреты (sync: false) Render спросит при создании Blueprint — в репозиторий их вписывать нельзя.
+
+services:
+  - type: web
+    name: ms-nails-agent
+    runtime: node
+    region: frankfurt          # ближайший к Афинам
+    plan: free                 # free засыпает после 15 мин простоя (первый запрос ~50 с); для боевого режима — starter
+    buildCommand: echo "no build step"
+    startCommand: node booking/agent/server.js
+    healthCheckPath: /healthz
+    autoDeploy: true
+    buildFilter:               # пересобирать только при изменениях в серверной части
+      paths:
+        - booking/**
+        - render.yaml
+        - package.json
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: SERVE_SITE        # сайт отдаёт GitHub Pages, здесь только API
+        value: "false"
+      - key: ALLOWED_ORIGINS   # кому разрешено обращаться к API из браузера
+        value: https://msnails.eu,https://www.msnails.eu
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5-5
+      - key: BOOKINGS_REPO     # приватный репозиторий с bookings.json
+        value: rustams060575-bot/ms-nails-bookings
+      - key: BOOKINGS_PATH
+        value: bookings.json
+      - key: BOOKINGS_BRANCH
+        value: main
+      # --- секреты: значения вводятся в панели Render ---
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN      # fine-grained токен, Contents: Read and write только для ms-nails-bookings
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false

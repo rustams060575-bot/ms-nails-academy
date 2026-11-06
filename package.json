@@ -1,0 +1,10 @@
+{
+  "name": "ms-nails-academy",
+  "private": true,
+  "description": "MS Nails Academy: сайт (GitHub Pages) и API записи с ИИ-ассистентом (Render)",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node booking/agent/server.js",
+    "seo": "node tools/build-seo.mjs"
+  }
+}

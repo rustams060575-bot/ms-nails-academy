@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Тест ИИ-ассистента · MS Nails Academy</title>
+<style>
+  :root{--bg:#ECE8DF;--ink:#1D1D1F;--sub:rgba(60,60,67,.6);--gold:#B69F64}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--ink);font-family:'Manrope',-apple-system,'Segoe UI',sans-serif}
+  main{width:100%;max-width:450px;padding:28px 22px 22px;border-radius:44px;background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.8),0 30px 60px -30px rgba(0,0,0,.25);text-align:center}
+  h1{margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em}
+  p{margin:8px 0 0;font-size:14.5px;color:var(--sub);line-height:1.45}
+  .langs{display:flex;justify-content:center;gap:6px;margin-top:18px}
+  .langs a{padding:6px 14px;border-radius:999px;font-size:13px;font-weight:500;color:var(--ink);text-decoration:none;background:rgba(118,118,128,.12)}
+  .langs a[aria-current]{background:var(--ink);color:#fff}
+  #status{margin-top:20px;font-size:12.5px;color:var(--sub)}
+  #status b{color:var(--ink)}
+  .links{margin-top:14px;font-size:13px}.links a{color:var(--gold);text-decoration:none;font-weight:500}
+</style>
+</head>
+<body>
+<main>
+  <h1>MS Nails Academy</h1>
+  <p id="lead"></p>
+  <div class="langs" id="langs"></div>
+  <button type="button" class="msa-open" data-msa-open hidden><i aria-hidden="true"></i><span id="label"></span></button>
+  <div id="status">…</div>
+  <div class="links"><a href="/">Полный сайт с iOS-виджетом →</a></div>
+</main>
+<script>
+  var L = {
+    ru: ['Тестовая страница диалога с ИИ-ассистентом записи.', 'Нужен совет? Спросите ИИ-ассистента'],
+    en: ['Test page for the AI booking assistant.', 'Need advice? Ask our AI assistant'],
+    el: ['Δοκιμαστική σελίδα του AI βοηθού κρατήσεων.', 'Θέλετε συμβουλή; Ρωτήστε τον AI βοηθό']
+  };
+  var q = new URLSearchParams(location.search).get('lang');
+  var lang = L[q] ? q : 'ru';
+  document.documentElement.lang = lang;
+  document.getElementById('lead').textContent = L[lang][0];
+  document.getElementById('label').textContent = L[lang][1];
+  document.getElementById('langs').innerHTML = ['ru', 'en', 'el'].map(function (l) {
+    return '<a href="?lang=' + l + '"' + (l === lang ? ' aria-current="true"' : '') + '>' + l.toUpperCase() + '</a>';
+  }).join('');
+  fetch('/agent/status').then(function (r) { return r.json(); }).then(function (s) {
+    document.getElementById('status').innerHTML = s.demo
+      ? 'Режим: <b>демо</b> (нет ANTHROPIC_API_KEY в booking/agent/.env)'
+      : 'Режим: <b>Claude</b> · ' + s.model;
+  }).catch(function () { document.getElementById('status').textContent = 'Сервер не отвечает'; });
+</script>
+</body>
+</html>

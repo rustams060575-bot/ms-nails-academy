@@ -1,3 +1,7 @@
 desktop.ini
 *.zip
 msq-fix-ru.html
+
+# локальный ИИ-агент записи
+booking/agent/.env
+booking/agent/data/
