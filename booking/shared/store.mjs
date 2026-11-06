@@ -33,7 +33,14 @@ export function createStore({ token, repo, path = 'bookings.json', branch = 'mai
     if (r.status === 404) { return { bookings: [], sha: null }; }
     if (!r.ok) { throw new Error('GitHub read failed: ' + r.status); }
     const j = await r.json();
-    return { bookings: JSON.parse(b64decode(j.content) || '[]'), sha: j.sha };
+    let text = b64decode(j.content || '');
+    if (!text && j.size > 0) {
+      // файл больше 1 МБ: GitHub не отдаёт content в JSON — читаем «сырой» файл, иначе пустой ответ был бы принят за пустой список и затёрт при записи
+      const raw = await fetch(url + '?ref=' + encodeURIComponent(branch), { headers: Object.assign({}, headers, { Accept: 'application/vnd.github.raw+json' }) });
+      if (!raw.ok) { throw new Error('GitHub raw read failed: ' + raw.status); }
+      text = await raw.text();
+    }
+    return { bookings: JSON.parse(text || '[]'), sha: j.sha };
   }
 
   /* true — записано, false — конфликт версий (кто-то успел раньше) */

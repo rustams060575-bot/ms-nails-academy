@@ -2155,7 +2155,14 @@ var I18N = {
 
     if (state.mode === 'wa') { window.open(waLink(name, phone), '_blank', 'noopener'); return; }
 
-    var payload = { service: svc().id, date: state.date, time: state.time, name: name, phone: phone, lang: lang, website: form.elements.website.value };
+    /* анонимный clientId гостьи (общий с чатом ассистента): по нему Афина потом узнаёт её и помнит её визиты */
+    var cid = '';
+    try { cid = localStorage.getItem('msa-client-id') || ''; } catch (e) {}
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cid) && window.crypto && crypto.randomUUID) {
+      cid = crypto.randomUUID();
+      try { localStorage.setItem('msa-client-id', cid); } catch (e) {}
+    }
+    var payload = { service: svc().id, date: state.date, time: state.time, name: name, phone: phone, lang: lang, website: form.elements.website.value, clientId: cid };
     setIsland('loading');
     cta.classList.add('is-busy');
     fetch(BOOKING_API.replace(/\/$/, '') + '/book', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })

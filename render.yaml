@@ -46,3 +46,7 @@ services:
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
+      - key: ADMIN_TOKEN       # пароль кабинета Марии (/admin): паттерны и память гостей; без него кабинет выключен
+        sync: false
+      - key: MEMORY_DIR        # папка памяти гостей в приватном репозитории
+        value: memory

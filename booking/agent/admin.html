@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Афина · кабинет Марии</title>
+<style>
+  :root{--bg:#ECE8DF;--card:rgba(255,255,255,.72);--ink:#1D1D1F;--sub:rgba(60,60,67,.62);--line:rgba(60,60,67,.16);--gold:#8a7338;--ok:#2f7d4f;--bad:#b3261e}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,'Segoe UI',Manrope,sans-serif;padding:24px 16px 80px}
+  main{max-width:860px;margin:0 auto}
+  h1{font-size:24px;font-weight:600;letter-spacing:-.02em;margin:0}
+  h2{font-size:17px;margin:0 0 10px}
+  .sub{color:var(--sub);margin:4px 0 22px}
+  .card{background:var(--card);border-radius:20px;padding:18px 20px;margin-bottom:16px;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.8),0 12px 30px -22px rgba(0,0,0,.35)}
+  label{display:block;font-size:13px;color:var(--sub);margin:12px 0 4px}
+  input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;color:inherit}
+  textarea{min-height:140px;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
+  button{border:0;border-radius:12px;padding:10px 16px;background:var(--ink);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+  button.ghost{background:rgba(118,118,128,.14);color:var(--ink)}
+  button.small{padding:6px 11px;font-size:13px}
+  button.bad{background:rgba(179,38,30,.12);color:var(--bad)}
+  .msg{margin-top:10px;font-size:14px;min-height:20px}.msg.ok{color:var(--ok)}.msg.err{color:var(--bad)}
+  .item{padding:12px 0;border-top:1px solid var(--line)}.item:first-child{border-top:0}
+  .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-right:6px;background:rgba(118,118,128,.14);color:var(--sub)}
+  .tag.ok{background:rgba(47,125,79,.14);color:var(--ok)}.tag.rule{background:rgba(138,115,56,.16);color:var(--gold)}
+  .text{margin:6px 0 8px;white-space:pre-wrap}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .muted{color:var(--sub);font-size:13px}
+  #app{display:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>Афина · кабинет Марии</h1>
+  <p class="sub">Здесь живут фирменные фразы и правила стиля Марии, а также память о гостях. Утверждённые паттерны попадают в промпт Афины.</p>
+
+  <div class="card" id="login">
+    <h2>Вход</h2>
+    <label for="tok">Токен доступа (ADMIN_TOKEN)</label>
+    <input id="tok" type="password" autocomplete="off" placeholder="вставьте токен">
+    <p><button id="go" type="button">Войти</button></p>
+    <div class="msg" id="loginMsg"></div>
+  </div>
+
+  <div id="app">
+    <div class="card">
+      <h2>Добавить из переписки (импорт чата)</h2>
+      <p class="muted">Вставьте экспорт чата WhatsApp или Telegram (или просто строки «Мария: текст»). В обработку идут только реплики выбранного отправителя, без телефонов, e-mail и ссылок. Найденные фразы и правила сохраняются «на проверку».</p>
+      <label for="who">Имя отправителя в чате</label>
+      <input id="who" value="Мария">
+      <label for="chat">Текст чата</label>
+      <textarea id="chat" placeholder="06/11/2026, 14:05 - Мария: Добрый день! Рада вас видеть..."></textarea>
+      <label><input type="checkbox" id="auto" style="width:auto"> сразу утвердить (без проверки)</label>
+      <p><button id="imp" type="button">Извлечь паттерны</button></p>
+      <div class="msg" id="impMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Добавить вручную</h2>
+      <div class="row">
+        <div><label for="kind">Тип</label><select id="kind"><option value="phrase">Живая фраза Марии</option><option value="rule">Правило стиля</option></select></div>
+        <div><label for="lang">Язык</label><select id="lang"><option value="">определить сам</option><option value="ru">русский</option><option value="en">английский</option><option value="el">греческий</option></select></div>
+        <div><label for="sit">Ситуация</label><input id="sit" placeholder="например, приветствие"></div>
+      </div>
+      <label for="txt">Текст</label>
+      <textarea id="txt" style="min-height:80px"></textarea>
+      <p><button id="add" type="button">Добавить и утвердить</button></p>
+      <div class="msg" id="addMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Паттерны Марии</h2>
+      <div id="patterns"></div>
+    </div>
+
+    <div class="card">
+      <h2>Гости (память Афины)</h2>
+      <p class="muted">Телефоны скрыты. «Забыть» стирает профиль и историю диалога гостьи.</p>
+      <div id="guests"></div>
+    </div>
+  </div>
+</main>
+<script>
+(function () {
+  var tok = '';
+  try { tok = sessionStorage.getItem('msa-admin') || ''; } catch (e) {}
+  var $ = function (id) { return document.getElementById(id); };
+
+  function api(method, path, body) {
+    return fetch('/admin/api/' + path, {
+      method: method,
+      headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || r.status); e.status = r.status; throw e; } return j; }); });
+  }
+  function say(el, text, ok) { el.textContent = text; el.className = 'msg ' + (ok ? 'ok' : 'err'); }
+  function node(tag, cls, text) { var n = document.createElement(tag); if (cls) { n.className = cls; } if (text != null) { n.textContent = text; } return n; }
+
+  function renderPatterns(list) {
+    var box = $('patterns'); box.textContent = '';
+    if (!list.length) { box.appendChild(node('p', 'muted', 'Пока пусто. Импортируйте переписку или добавьте фразу вручную.')); return; }
+    list.forEach(function (p) {
+      var it = node('div', 'item');
+      var head = node('div');
+      head.appendChild(node('span', 'tag ' + (p.approved ? 'ok' : ''), p.approved ? 'в промпте' : 'на проверке'));
+      head.appendChild(node('span', 'tag ' + (p.kind === 'rule' ? 'rule' : ''), p.kind === 'rule' ? 'правило' : 'фраза'));
+      head.appendChild(node('span', 'tag', (p.lang || '').toUpperCase()));
+      if (p.situation) { head.appendChild(node('span', 'muted', p.situation)); }
+      it.appendChild(head);
+      var t = node('div', 'text', p.text); it.appendChild(t);
+      var acts = node('div', 'acts');
+      var ap = node('button', 'small' + (p.approved ? ' ghost' : ''), p.approved ? 'Снять с промпта' : 'Утвердить');
+      ap.onclick = function () { api('PATCH', 'patterns/' + p.id, { approved: !p.approved }).then(load).catch(fail); };
+      var ed = node('button', 'small ghost', 'Править');
+      ed.onclick = function () { var v = prompt('Текст', p.text); if (v != null) { api('PATCH', 'patterns/' + p.id, { text: v }).then(load).catch(fail); } };
+      var del = node('button', 'small bad', 'Удалить');
+      del.onclick = function () { if (confirm('Удалить паттерн?')) { api('DELETE', 'patterns/' + p.id).then(load).catch(fail); } };
+      acts.appendChild(ap); acts.appendChild(ed); acts.appendChild(del);
+      it.appendChild(acts); box.appendChild(it);
+    });
+  }
+
+  function renderGuests(list) {
+    var box = $('guests'); box.textContent = '';
+    if (!list.length) { box.appendChild(node('p', 'muted', 'Пока никого.')); return; }
+    list.forEach(function (g) {
+      var it = node('div', 'item');
+      it.appendChild(node('div', '', (g.name || 'без имени') + (g.phones.length ? ' · ' + g.phones.join(', ') : '')));
+      it.appendChild(node('div', 'muted', 'заметок: ' + g.notes + ' · язык: ' + (g.lang || '').toUpperCase() + ' · последний раз: ' + (g.lastSeen ? new Date(g.lastSeen).toLocaleString('ru-RU') : '—')));
+      var acts = node('div', 'acts');
+      var del = node('button', 'small bad', 'Забыть');
+      del.onclick = function () { if (confirm('Стереть профиль и историю этой гостьи?')) { api('DELETE', 'guests/' + g.id).then(load).catch(fail); } };
+      acts.appendChild(del); it.appendChild(acts); box.appendChild(it);
+    });
+  }
+
+  function fail(e) {
+    if (e && e.status === 401) { $('app').style.display = 'none'; $('login').style.display = ''; say($('loginMsg'), 'Неверный токен', false); return; }
+    alert('Ошибка: ' + (e && e.message));
+  }
+
+  function load() {
+    return Promise.all([api('GET', 'patterns'), api('GET', 'guests')]).then(function (r) {
+      $('login').style.display = 'none'; $('app').style.display = 'block';
+      renderPatterns(r[0].patterns); renderGuests(r[1].guests);
+    }).catch(fail);
+  }
+
+  $('go').onclick = function () {
+    tok = $('tok').value.trim();
+    try { sessionStorage.setItem('msa-admin', tok); } catch (e) {}
+    say($('loginMsg'), '', true);
+    load();
+  };
+  $('imp').onclick = function () {
+    say($('impMsg'), 'Обрабатываю…', true);
+    api('POST', 'patterns/import', { text: $('chat').value, who: $('who').value, autoApprove: $('auto').checked })
+      .then(function (r) { say($('impMsg'), 'Готово (' + (r.mode === 'ai' ? 'ИИ' : 'простой режим без ключа Anthropic') + '): реплик Марии ' + r.linesFromMaria + ', добавлено паттернов ' + r.added + '.', true); load(); })
+      .catch(function (e) { say($('impMsg'), e.message === 'no_lines_found' ? 'В тексте не нашлось реплик этого отправителя. Проверьте имя и формат чата.' : 'Ошибка: ' + e.message, false); });
+  };
+  $('add').onclick = function () {
+    api('POST', 'patterns', { kind: $('kind').value, lang: $('lang').value, situation: $('sit').value, text: $('txt').value })
+      .then(function () { say($('addMsg'), 'Добавлено и утверждено.', true); $('txt').value = ''; load(); })
+      .catch(function (e) { say($('addMsg'), e.message === 'bad_or_duplicate' ? 'Слишком короткий текст или такая фраза уже есть.' : 'Ошибка: ' + e.message, false); });
+  };
+  if (tok) { load(); }
+})();
+</script>
+</body>
+</html>

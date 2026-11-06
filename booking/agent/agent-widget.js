@@ -12,7 +12,7 @@
   API = String(API).replace(/\/$/, '');
 
   var lang = ['ru', 'en', 'el'].indexOf(document.documentElement.lang) > -1 ? document.documentElement.lang : 'ru';
-  var STORE_KEY = 'msa-chat-v1';
+  var ID_KEY = 'msa-client-id';
 
   var T = {
     ru: {
@@ -20,6 +20,7 @@
       hello: 'Здравствуйте! Меня зовут Афина, я цифровой администратор студии Miss Nails. Подскажу по услугам и ценам, помогу выбрать удобное время и оформлю запись. Как вас зовут?',
       chips: ['Какие услуги и цены?', 'Хочу записаться на маникюр', 'Ближайшее время на педикюр'],
       err: 'Не удалось получить ответ. Попробуйте ещё раз или напишите Марии в WhatsApp.',
+      back: 'С возвращением, {name}! Рада вас видеть. Чем могу помочь сегодня?',
       cont: 'Продолжить с моим выбором: {sel}', want: 'Хочу записаться: {sel}.',
       booked: 'Вы записаны', service: 'Услуга', when: 'Когда', duration: 'Длительность', cal: 'Запись сохранена. SMS-напоминание придёт за 24 часа.',
       svc: { manicure: 'Маникюр', pedicure: 'Педикюр', face: 'Уход за лицом' }, min: 'мин', locale: 'ru-RU'
@@ -29,6 +30,7 @@
       hello: 'Hello! My name is Athena, I’m the digital concierge of Miss Nails studio. I can tell you about services and prices, find a convenient time and book your appointment. May I have your name?',
       chips: ['Services and prices?', 'I’d like to book a manicure', 'Earliest pedicure slot'],
       err: 'Could not get a reply. Please try again or message Maria on WhatsApp.',
+      back: 'Welcome back, {name}! Lovely to see you again. How can I help today?',
       cont: 'Continue with my choice: {sel}', want: 'I’d like to book: {sel}.',
       booked: 'You’re booked', service: 'Service', when: 'When', duration: 'Duration', cal: 'Saved. You will get an SMS reminder 24 hours before.',
       svc: { manicure: 'Manicure', pedicure: 'Pedicure', face: 'Face care' }, min: 'min', locale: 'en-GB'
@@ -38,13 +40,14 @@
       hello: 'Γεια σας! Με λένε Αθηνά και είμαι η ψηφιακή υπεύθυνος του στούντιο Miss Nails. Μπορώ να σας πω για υπηρεσίες και τιμές, να βρω ώρα και να κλείσω το ραντεβού σας. Πώς σας λένε;',
       chips: ['Υπηρεσίες και τιμές;', 'Θέλω ραντεβού για μανικιούρ', 'Πρώτη διαθέσιμη ώρα για πεντικιούρ'],
       err: 'Δεν ήταν δυνατή η απάντηση. Δοκιμάστε ξανά ή στείλτε μήνυμα στη Μαρία στο WhatsApp.',
+      back: 'Καλώς ήρθατε ξανά, {name}! Χαίρομαι που σας βλέπω. Πώς μπορώ να βοηθήσω σήμερα;',
       cont: 'Συνέχεια με την επιλογή μου: {sel}', want: 'Θα ήθελα να κλείσω ραντεβού: {sel}.',
       booked: 'Το ραντεβού κλείστηκε', service: 'Υπηρεσία', when: 'Πότε', duration: 'Διάρκεια', cal: 'Αποθηκεύτηκε. Θα λάβετε SMS υπενθύμιση 24 ώρες πριν.',
       svc: { manicure: 'Μανικιούρ', pedicure: 'Πεντικιούρ', face: 'Πρόσωπο' }, min: 'λεπ.', locale: 'el-GR'
     }
   }[lang];
 
-  var history = [];   // [{role, content}] — только текст, как уходит на сервер
+  var shown = 0;      // сколько сообщений уже на экране (история теперь хранится на сервере, у гостьи в браузере только её clientId)
   var busy = false;
   var els = null;     // DOM диалога, создаётся при первом открытии
   var lastFocus = null;
@@ -67,8 +70,36 @@
     return (T.svc[sel.service] || '') + ', ' + day + ', ' + sel.time;
   }
 
-  function load() { try { var s = JSON.parse(sessionStorage.getItem(STORE_KEY) || '[]'); if (Array.isArray(s)) { history = s; } } catch (e) {} }
-  function save() { try { sessionStorage.setItem(STORE_KEY, JSON.stringify(history.slice(-30))); } catch (e) {} }
+  /* Анонимный идентификатор гостьи: по нему сервер находит её память (имя, предпочтения, прошлые визиты и разговор).
+     Тот же ключ использует виджет записи, чтобы визиты попадали в её профиль. */
+  var clientId = (function () {
+    var id = '';
+    try { id = localStorage.getItem(ID_KEY) || ''; } catch (e) {}
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, function () { return Math.floor(Math.random() * 16).toString(16); });
+      try { localStorage.setItem(ID_KEY, id); } catch (e) {}
+    }
+    return id;
+  })();
+
+  /* Открытие чата: подтягиваем с сервера историю и имя; если гостья уже знакома — встречаем по имени */
+  function startSession() {
+    return fetch(API + '/agent/session?clientId=' + encodeURIComponent(clientId))
+      .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); })
+      .catch(function () { return { history: [], returning: false, name: '' }; })
+      .then(function (s) {
+        var hist = s.history || [];
+        hist.forEach(function (m) { bubble(m.role === 'user' ? 'me' : 'bot', m.content, true); shown++; });
+        var stale = !s.lastAt || (Date.now() - Date.parse(s.lastAt)) > 6 * 3600 * 1000;
+        if (!hist.length) {
+          bubble('bot', s.returning && s.name ? T.back.replace('{name}', s.name) : T.hello); shown++;
+          chips();
+        } else if (s.returning && s.name && stale) {
+          bubble('bot', T.back.replace('{name}', s.name));
+        }
+        selectionChip();
+      });
+  }
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   /* минимальный markdown: **жирный**, списки «- », абзацы. Всё остальное экранируется. */
@@ -126,9 +157,7 @@
       ask(v);
     });
 
-    if (history.length) { history.forEach(function (m) { bubble(m.role === 'user' ? 'me' : 'bot', m.content, true); }); }
-    else { bubble('bot', T.hello); chips(); }
-    selectionChip();
+    startSession();
   }
 
   function scroll() { els.list.scrollTop = els.list.scrollHeight; }
@@ -143,7 +172,7 @@
   /* если клиент уже выбрал в виджете услугу, дату и время — предлагаем продолжить именно с этим выбором */
   function selectionChip() {
     var sel = readSelection();
-    if (!(sel.service && sel.date && sel.time) || history.length) { return; }
+    if (!(sel.service && sel.date && sel.time) || shown) { return; }
     var old = els.list.querySelector('.msa__chips--sel');
     if (old) { old.remove(); }
     var w = document.createElement('div');
@@ -187,25 +216,22 @@
 
   function ask(text) {
     busy = true;
-    bubble('me', text);
-    history.push({ role: 'user', content: text }); save();
+    bubble('me', text); shown++;
     typing(true);
     var ctl = window.AbortController ? new AbortController() : null;
     var timer = setTimeout(function () { if (ctl) { ctl.abort(); } }, 45000);
     fetch(API + '/agent/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl ? ctl.signal : undefined,
-      body: JSON.stringify({ messages: history.slice(-30), lang: lang, context: readSelection() })
+      body: JSON.stringify({ clientId: clientId, message: text, lang: lang, context: readSelection() })
     })
       .then(function (r) { return r.json().then(function (j) { if (!r.ok) { throw new Error(j.error || r.status); } return j; }); })
       .then(function (j) {
         typing(false);
-        bubble('bot', j.reply);
-        history.push({ role: 'assistant', content: j.reply }); save();
+        bubble('bot', j.reply); shown++;
         if (j.booking) { ticket(j.booking); window.dispatchEvent(new CustomEvent('msagent:booked', { detail: j.booking })); }
       })
       .catch(function () {
         typing(false);
-        history.pop(); save();   // чтобы чередование user/assistant не ломалось при повторной отправке
         var e = document.createElement('div');
         e.className = 'msa__m msa__m--err'; e.textContent = T.err;
         els.list.appendChild(e); scroll();
@@ -214,11 +240,11 @@
   }
 
   function open() {
-    if (!els) { load(); build(); }
+    if (!els) { build(); }
     lastFocus = document.activeElement;
     document.documentElement.classList.add('msa-lock');
     els.root.dataset.open = 'true';
-    if (!history.length) { selectionChip(); }
+    selectionChip();
     setTimeout(function () { els.input.focus({ preventScroll: true }); scroll(); }, 380);
   }
   function close() {
