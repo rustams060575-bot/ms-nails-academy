@@ -330,6 +330,8 @@ function allowedStatic(urlPath) {
 const HEAD_INJECT = '<link rel="stylesheet" href="/booking/agent/agent.css"><script>window.MS_AGENT_API=location.origin;</script>';
 const BODY_INJECT = '<script src="/booking/agent/agent-widget.js" defer></script>';
 function injectHtml(html) {
+  // страница уже подключена к боевому API (адрес Render зашит в index.html) — локально направляем её на этот сервер
+  if (html.includes('agent-widget.js')) { return html.replace(/'https:\/\/[a-z0-9-]+\.onrender\.com'/g, 'location.origin'); }
   return html
     .replace("var BOOKING_API = '';", 'var BOOKING_API = location.origin;')
     .replace('</head>', HEAD_INJECT + '</head>')
