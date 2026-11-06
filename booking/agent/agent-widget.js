@@ -17,7 +17,7 @@
   var T = {
     ru: {
       title: 'Ассистент от Miss Nails', sub: 'администратор студии Afina', close: 'Закрыть', placeholder: 'Напишите сообщение…', send: 'Отправить',
-      hello: 'Здравствуйте! Я ИИ-ассистент студии Марии Семёновой в Перистери. Подскажу по услугам и ценам, помогу выбрать удобное время и оформлю запись. Чем могу помочь?',
+      hello: 'Здравствуйте! Меня зовут Афина, я цифровой администратор студии Miss Nails. Подскажу по услугам и ценам, помогу выбрать удобное время и оформлю запись. Как вас зовут?',
       chips: ['Какие услуги и цены?', 'Хочу записаться на маникюр', 'Ближайшее время на педикюр'],
       err: 'Не удалось получить ответ. Попробуйте ещё раз или напишите Марии в WhatsApp.',
       cont: 'Продолжить с моим выбором: {sel}', want: 'Хочу записаться: {sel}.',
@@ -26,7 +26,7 @@
     },
     en: {
       title: 'Assistant by Miss Nails', sub: 'Afina studio administrator', close: 'Close', placeholder: 'Type a message…', send: 'Send',
-      hello: 'Hello! I’m the AI assistant of Maria Semenova’s studio in Peristeri. I can tell you about services and prices, find a convenient time and book your appointment. How can I help?',
+      hello: 'Hello! My name is Athena, I’m the digital concierge of Miss Nails studio. I can tell you about services and prices, find a convenient time and book your appointment. May I have your name?',
       chips: ['Services and prices?', 'I’d like to book a manicure', 'Earliest pedicure slot'],
       err: 'Could not get a reply. Please try again or message Maria on WhatsApp.',
       cont: 'Continue with my choice: {sel}', want: 'I’d like to book: {sel}.',
@@ -35,7 +35,7 @@
     },
     el: {
       title: 'Βοηθός από Miss Nails', sub: 'διαχειριστής στούντιο Afina', close: 'Κλείσιμο', placeholder: 'Γράψτε ένα μήνυμα…', send: 'Αποστολή',
-      hello: 'Γεια σας! Είμαι ο AI βοηθός του στούντιο της Maria Semenova στο Περιστέρι. Μπορώ να σας πω για υπηρεσίες και τιμές, να βρω ώρα και να κλείσω το ραντεβού σας. Πώς μπορώ να βοηθήσω;',
+      hello: 'Γεια σας! Με λένε Αθηνά και είμαι η ψηφιακή υπεύθυνος του στούντιο Miss Nails. Μπορώ να σας πω για υπηρεσίες και τιμές, να βρω ώρα και να κλείσω το ραντεβού σας. Πώς σας λένε;',
       chips: ['Υπηρεσίες και τιμές;', 'Θέλω ραντεβού για μανικιούρ', 'Πρώτη διαθέσιμη ώρα για πεντικιούρ'],
       err: 'Δεν ήταν δυνατή η απάντηση. Δοκιμάστε ξανά ή στείλτε μήνυμα στη Μαρία στο WhatsApp.',
       cont: 'Συνέχεια με την επιλογή μου: {sel}', want: 'Θα ήθελα να κλείσω ραντεβού: {sel}.',
