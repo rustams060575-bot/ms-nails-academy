@@ -1,5 +1,17 @@
 User-agent: *
 Allow: /
 Disallow: /booking/
+Disallow: /msq-fix-ru.html
+Disallow: /tools/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /booking/
+
+User-agent: Yandex
+Allow: /
+Disallow: /booking/
+Disallow: /msq-fix-ru.html
+Disallow: /tools/
 
 Sitemap: https://msnails.eu/sitemap.xml

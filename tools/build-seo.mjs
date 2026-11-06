@@ -58,7 +58,11 @@ const seoBlock = (lang) => {
 <meta property="og:image" content="${BASE}/photos/og-cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MS Nails Academy — ${d.title}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${d.title}">
+<meta name="twitter:description" content="${d.desc}">
+<meta name="twitter:image:alt" content="MS Nails Academy — ${d.title}">
 <meta name="twitter:image" content="${BASE}/photos/og-cover.jpg">
 <link rel="icon" href="/photos/logo.png" type="image/png">
 <link rel="apple-touch-icon" href="/photos/logo.png">
@@ -98,6 +102,11 @@ writeFileSync('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 ${['ru', 'en', 'el'].map((l) => `  <url>\n    <loc>${BASE}${L[l].path}</loc>\n    <lastmod>${today}</lastmod>\n${alt}\n  </url>`).join('\n')}
 </urlset>
 `);
-writeFileSync('robots.txt', `User-agent: *\nAllow: /\nDisallow: /booking/\n\nSitemap: ${BASE}/sitemap.xml\n`);
+const robots = [
+  'User-agent: *', 'Allow: /', 'Disallow: /booking/', 'Disallow: /msq-fix-ru.html', 'Disallow: /tools/', '',
+  'User-agent: Googlebot', 'Allow: /', 'Disallow: /booking/', '',
+  'User-agent: Yandex', 'Allow: /', 'Disallow: /booking/', 'Disallow: /msq-fix-ru.html', 'Disallow: /tools/', '',
+  `Sitemap: ${BASE}/sitemap.xml`, '',
+];
+writeFileSync('robots.txt', robots.join('\n'));
 writeFileSync('CNAME', `${DOMAIN}\n`);
-console.log('ok');
