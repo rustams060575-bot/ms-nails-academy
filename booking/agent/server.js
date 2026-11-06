@@ -405,6 +405,29 @@ const TOOLS = [
   }
 ];
 
+/* Запись не удалось оформить автоматически: админ получает все детали, чтобы оформить вручную */
+function handoffBooking(input, ctx, reason) {
+  const svc = S.SERVICES[input.service];
+  const when = /^\d{4}-\d{2}-\d{2}$/.test(input.date || '') && /^\d{2}:\d{2}$/.test(input.time || '')
+    ? new Intl.DateTimeFormat('ru-RU', { timeZone: S.TZ, weekday: 'short', day: 'numeric', month: 'long' }).format(S.toUtc(input.date, input.time)) + ', ' + input.time
+    : 'время не определено';
+  const prof = ctx.clientId ? MEM.profile(ctx.clientId) : null;
+  const name = String(input.name || (prof && prof.name) || 'имя не известно').slice(0, 60);
+  const phone = normalizePhone(input.phone);
+  sendAdminTelegram([
+    '🛠 <b>Запись нужно оформить вручную</b>',
+    '',
+    'Гостья выбрала время, но автоматически оформить запись не удалось. Гостье сообщено, что заявка передана мастеру.',
+    '',
+    '👤 <b>' + TG.escapeHtml(name) + '</b>',
+    '<b>' + TG.escapeHtml(svc ? svc.ru : String(input.service || '—')) + '</b>' + (input.duration_minutes ? ' · ' + Number(input.duration_minutes) + ' мин' : ''),
+    '🗓 ' + TG.escapeHtml(when),
+    phone ? '📞 <a href="tel:' + phone + '">' + phone + '</a>' : '📞 телефон не указан',
+    '',
+    '<i>Причина: ' + TG.escapeHtml(String(reason || 'ошибка оформления').slice(0, 120)) + '</i>'
+  ].join('\n'), 'заявка на ручное оформление');
+}
+
 const notifyCount = new Map();   // защита от спама просьбами к Марии: не больше 5 в час на гостью
 
 async function runTool(name, input, ctx) {
@@ -505,7 +528,12 @@ async function chat(history, context, opts) {
     const results = [];
     for (const b of res.content.filter(function (x) { return x.type === 'tool_use'; })) {
       let out;
-      try { out = await runTool(b.name, b.input, ctx); } catch (e) { out = { error: 'tool_failed' }; console.error(e); }
+      try { out = await runTool(b.name, b.input, ctx); } catch (e) {
+        console.error(e);
+        // техническая причина гостье не показывается; если не удалось оформить запись, заявка реально уходит мастеру на ручное оформление
+        if (b.name === 'create_booking') { out = { ok: false, handed_to_master: true }; handoffBooking(b.input || {}, ctx, e.message); }
+        else { out = { ok: false, internal: true }; }
+      }
       results.push({ type: 'tool_result', tool_use_id: b.id, content: JSON.stringify(out) });
     }
     messages.push({ role: 'user', content: results });
