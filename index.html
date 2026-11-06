@@ -250,7 +250,7 @@ body.menu-open .header .logo img{filter:none}
 @keyframes glassSweep{0%{transform:translateX(-160%) skewX(-20deg)}36%,100%{transform:translateX(420%) skewX(-20deg)}}
 @media (prefers-reduced-motion:reduce){.hero__agent::after{animation:none}}
 @media (max-width:767px){.hero__corner{display:none}.hero__agent{padding:0 28px;letter-spacing:.16em}}
-.hero__blinds{position:absolute;inset:0;z-index:5;pointer-events:none;perspective:1400px}
+.hero__blinds{position:absolute;inset:0;z-index:1;pointer-events:none;perspective:1400px}   /* планки на заднем плане: весь текст hero (.hero__content, z-index:2) строго над ними */
 .blind{position:absolute;top:0;height:100%;background:var(--bg);transform-origin:left center;transform:rotateY(-90deg);backface-visibility:hidden}
 
 /* ============ ПОРТАЛЫ: вход в арку + лента вбок ============ */
