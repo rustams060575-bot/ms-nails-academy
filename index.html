@@ -175,7 +175,6 @@ p{margin:0}
 .langs a{opacity:.55;padding:10px 6px;transition:opacity .3s}
 .langs a[aria-current="true"]{opacity:1;text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
 .langs a:hover{opacity:1}
-.header .btn{--b:currentColor;--t:var(--bg);min-height:42px;padding:0 20px}
 .burger{width:44px;height:44px;display:grid;place-items:center}
 .burger span{display:block;width:24px;height:1px;background:currentColor;position:relative;transition:background-color .3s}
 .burger span::before,.burger span::after{content:"";position:absolute;left:0;width:100%;height:1px;background:currentColor;transition:transform .5s var(--ease)}
@@ -184,7 +183,6 @@ p{margin:0}
 .music-mini{display:none;width:40px;height:40px;place-items:center;border-radius:50%;border:1px solid currentColor;opacity:.85}
 .music-mini.is-on{display:grid}
 @media (min-width:1240px){.nav,.socials{display:flex}.burger,.music-mini.is-on{display:none}}
-@media (max-width:760px){.header .btn{display:none}}
 @media (max-width:640px){.logo{width:58px}.header__in{height:72px;gap:8px}.langs a{padding:10px 4px}}
 
 .header.is-scrolled{background:rgba(236,232,223,.9);-webkit-backdrop-filter:saturate(1.1) blur(14px);backdrop-filter:saturate(1.1) blur(14px);box-shadow:0 1px 0 var(--line)}
@@ -252,8 +250,10 @@ body.menu-open .header .logo img{filter:none}
 @keyframes glassSweep{0%{transform:translateX(-160%) skewX(-20deg)}36%,100%{transform:translateX(420%) skewX(-20deg)}}
 @media (prefers-reduced-motion:reduce){.hero__agent::after{animation:none}}
 @media (max-width:767px){.hero__corner{display:none}.hero__agent{padding:0 28px;letter-spacing:.16em}}
-.hero__blinds{position:absolute;inset:0;z-index:5;pointer-events:none;perspective:1400px}
-.blind{position:absolute;top:0;height:100%;background:var(--bg);transform-origin:left center;transform:rotateY(-90deg);backface-visibility:hidden}
+/* жалюзи лежат ПОД текстом (z-index:1 < .hero__content:2): планки больше не пересекают буквы и не дают ряби */
+.hero__blinds{position:absolute;inset:0;z-index:1;pointer-events:none;perspective:1400px}
+/* старт: планки наполовину закрыты (-45°) и мягко затемнены; при скролле раскрываются в лён страницы (#ECE8DF) */
+.blind{position:absolute;top:0;height:100%;background:#D9D1C0;transform-origin:left center;transform:rotateY(-45deg);backface-visibility:hidden}
 
 /* ============ ПОРТАЛЫ: вход в арку + лента вбок ============ */
 .portal{position:relative;z-index:2;height:100vh;height:100svh;overflow:hidden;background:var(--bg);color:var(--ink);margin-top:-1px}
@@ -606,8 +606,21 @@ body.menu-open .header .logo img{filter:none}
 /* время */
 .iw__times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;min-height:96px;align-content:start}
 .iw__time{height:42px;border-radius:13px;background:var(--iw-tile);font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;transition:transform .25s var(--iw-spring),background-color .3s,color .3s;animation:iwIn .45s var(--iw-spring) both}
-.iw__time[aria-pressed="true"]{background:var(--iw-ink);color:#fff}
+.iw__time[aria-pressed="true"]{background:var(--iw-ink);color:#fff;animation:iwPop .5s var(--iw-spring) 0s both !important}
 .iw__time:active{transform:scale(.92)}
+@keyframes iwPop{0%{transform:scale(.92)}55%{transform:scale(1.06)}}
+.iw__day[aria-pressed="true"]{animation:iwPop .5s var(--iw-spring) both}
+/* «готово»: кольцо вокруг галочки и поочерёдное появление строк билета */
+.iw__check{position:relative}
+.iw__check::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(182,159,100,.55);opacity:0}
+.iw[data-view="done"] .iw__check::after{animation:iwRing 1.4s .45s var(--iw-spring) both}
+@keyframes iwRing{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
+.iw[data-view="done"] .iw__ticket div{animation:iwIn .6s var(--iw-spring) both}
+.iw[data-view="done"] .iw__ticket div:nth-child(1){animation-delay:.35s}
+.iw[data-view="done"] .iw__ticket div:nth-child(2){animation-delay:.43s}
+.iw[data-view="done"] .iw__ticket div:nth-child(3){animation-delay:.51s}
+.iw[data-view="done"] .iw__ticket div:nth-child(4){animation-delay:.59s}
+@media (prefers-reduced-motion:reduce){.iw__time[aria-pressed="true"],.iw__day[aria-pressed="true"],.iw[data-view="done"] .iw__check::after,.iw[data-view="done"] .iw__ticket div{animation:none}}
 @keyframes iwIn{from{opacity:0;transform:translateY(6px) scale(.96)}}
 .iw__empty{grid-column:1/-1;display:grid;place-items:center;min-height:96px;border-radius:16px;background:var(--iw-fill);padding:0 20px;font-size:14px;color:var(--iw-sub);text-align:center}
 .iw__skel{height:42px;border-radius:13px;background:linear-gradient(90deg,var(--iw-fill) 25%,rgba(255,255,255,.7) 50%,var(--iw-fill) 75%);background-size:200% 100%;animation:iwShimmer 1.3s infinite}
@@ -632,6 +645,8 @@ body.menu-open .header .logo img{filter:none}
 .iw__cta:not(:disabled):hover{box-shadow:0 20px 36px -16px rgba(0,0,0,.65)}
 .iw__cta:not(:disabled):active{transform:scale(.965)}
 .iw__cta:disabled{background:var(--iw-fill);color:var(--iw-sub);cursor:default;box-shadow:none}
+/* белый текст активной кнопки: «.iw button{color:inherit}» (специфичность выше) делал его тёмным на тёмном */
+.iw .iw__cta:not(:disabled){color:#fff}
 .iw__cta.is-busy{opacity:.7;pointer-events:none}
 .iw__ripple{position:absolute;z-index:-1;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:rgba(255,255,255,.35);transform:scale(0);animation:iwRipple .7s ease-out forwards;pointer-events:none}
 @keyframes iwRipple{to{transform:scale(28);opacity:0}}
@@ -731,7 +746,6 @@ body.menu-open .header .logo img{filter:none}
         <a href="/en/" data-lang="en" hreflang="en">EN</a>
         <a href="/el/" data-lang="el" hreflang="el">EL</a>
       </div>
-      <a href="#book" class="btn" data-scroll data-i18n="cta.book">Записаться</a>
     </div>
   </div>
 </header>
@@ -1078,10 +1092,10 @@ body.menu-open .header .logo img{filter:none}
       <div class="ob__text">
         <span class="eyebrow" data-fade data-i18n="ob.eyebrow">Онлайн-запись</span>
         <h2 class="h2 display" data-chars data-i18n="ob.title">Ваше время — <em>в одно касание</em></h2>
-        <p class="lead" data-lines data-i18n="ob.lead">Выберите ритуал, день и удобное время. Мария получит запись мгновенно, а за сутки до визита мы напомним вам по SMS.</p>
+        <p class="lead" data-lines data-i18n="ob.lead">Выберите ритуал, день и удобное время. Мария получит запись мгновенно, а за сутки и за 12 часов до визита мы бережно напомним о записи.</p>
         <ul class="ob__perks" data-stagger>
           <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><span data-i18n="ob.p1">Подтверждение сразу</span></li>
-          <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3"/></svg></i><span data-i18n="ob.p2">SMS-напоминание за 24 часа</span></li>
+          <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3"/></svg></i><span data-i18n="ob.p2">Напоминания за 24 и 12 часов</span></li>
           <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i><span data-i18n="ob.p3">Без звонков и переписки</span></li>
         </ul>
       </div>
@@ -1298,8 +1312,8 @@ var I18N = {
     'ct.phone': 'Phone', 'ct.hours': 'Working hours', 'ct.hoursv': 'Mon–Fri 09:00 – 21:00 · Sat 09:00 – 21:00',
     'ct.call': 'Call', 'ct.copy': 'Copy address', 'ct.wa': 'Message on WhatsApp', 'ct.copied': 'Address copied',
     'bk.eyebrow': 'Booking', 'bk.title': 'Let’s create beauty <em>together</em>', 'bk.name': 'Maria Semenova', 'bk.role': 'Beauty &amp; care specialist',
-    'ob.eyebrow': 'Online booking', 'ob.title': 'Your time, <em>in one tap</em>', 'ob.lead': 'Choose your ritual, day and a time that suits you. Maria receives your booking instantly, and we will remind you by SMS the day before your visit.',
-    'ob.p1': 'Instant confirmation', 'ob.p2': 'SMS reminder 24 hours before', 'ob.p3': 'No calls, no back-and-forth', 'ob.agent': 'Need advice? Ask our AI assistant',
+    'ob.eyebrow': 'Online booking', 'ob.title': 'Your time, <em>in one tap</em>', 'ob.lead': 'Choose your ritual, day and a time that suits you. Maria receives your booking instantly, and we will gently remind you 24 and 12 hours before your visit.',
+    'ob.p1': 'Instant confirmation', 'ob.p2': 'Reminders 24 and 12 hours before', 'ob.p3': 'No calls, no back-and-forth', 'ob.agent': 'Need advice? Ask our AI assistant',
     'ft.menu': 'Menu', 'ft.contact': 'Contact', 'ft.lang': 'Language'
   },
   el: {
@@ -1350,8 +1364,8 @@ var I18N = {
     'ct.phone': 'Τηλέφωνο', 'ct.hours': 'Ώρες λειτουργίας', 'ct.hoursv': 'Δευ–Παρ 09:00 – 21:00 · Σαβ 09:00 – 21:00',
     'ct.call': 'Κλήση', 'ct.copy': 'Αντιγραφή διεύθυνσης', 'ct.wa': 'Μήνυμα στο WhatsApp', 'ct.copied': 'Η διεύθυνση αντιγράφηκε',
     'bk.eyebrow': 'Ραντεβού', 'bk.title': 'Δημιουργούμε ομορφιά <em>μαζί</em>', 'bk.name': 'Maria Semenova', 'bk.role': 'Ειδικός ομορφιάς',
-    'ob.eyebrow': 'Online ραντεβού', 'ob.title': 'Ο χρόνος σας, <em>με ένα άγγιγμα</em>', 'ob.lead': 'Επιλέξτε τελετουργία, ημέρα και ώρα που σας βολεύει. Η Μαρία λαμβάνει το ραντεβού αμέσως και μία ημέρα πριν θα σας το υπενθυμίσουμε με SMS.',
-    'ob.p1': 'Άμεση επιβεβαίωση', 'ob.p2': 'SMS υπενθύμιση 24 ώρες πριν', 'ob.p3': 'Χωρίς τηλέφωνα και μηνύματα', 'ob.agent': 'Θέλετε συμβουλή; Ρωτήστε τον AI βοηθό',
+    'ob.eyebrow': 'Online ραντεβού', 'ob.title': 'Ο χρόνος σας, <em>με ένα άγγιγμα</em>', 'ob.lead': 'Επιλέξτε τελετουργία, ημέρα και ώρα που σας βολεύει. Η Μαρία λαμβάνει το ραντεβού αμέσως και θα σας το υπενθυμίσουμε διακριτικά 24 και 12 ώρες πριν.',
+    'ob.p1': 'Άμεση επιβεβαίωση', 'ob.p2': 'Υπενθυμίσεις 24 και 12 ώρες πριν', 'ob.p3': 'Χωρίς τηλέφωνα και μηνύματα', 'ob.agent': 'Θέλετε συμβουλή; Ρωτήστε τον AI βοηθό',
     'ft.menu': 'Μενού', 'ft.contact': 'Επικοινωνία', 'ft.lang': 'Γλώσσα'
   },
   ru: {
@@ -1661,7 +1675,7 @@ var I18N = {
       cover.appendChild(s);
     }
     gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: '+=100%', scrub: true, pin: true, pinSpacing: false, onEnterBack: function () { setHeaderTheme('light'); } } })
-      .to('.blind', { rotationY: 0, stagger: .005, ease: 'power3.out', duration: .6 }, 0)
+      .to('.blind', { rotationY: 0, backgroundColor: '#ECE8DF', stagger: .005, ease: 'power3.out', duration: .6 }, 0)
       .to('.hero__content', { y: -80, opacity: .15, ease: 'none', duration: .6 }, 0)
       .to('.hero__media', { scale: .94, ease: 'none', duration: .6 }, 0)
       .to('.hero__corner', { opacity: 0, ease: 'none', duration: .25 }, .2);
@@ -1896,7 +1910,7 @@ var I18N = {
       online: 'Онлайн-запись', sending: 'Отправляем…', doneShort: 'Вы записаны', sub: 'Маникюр · Педикюр · Уход за лицом',
       date: 'Дата', time: 'Время', contacts: 'Контакты', name: 'Ваше имя', cta: 'Записаться', ctaWa: 'Отправить в WhatsApp', pick: 'Выберите время',
       noSlots: 'На этот день свободного времени нет — выберите другой', h: 'ч', min: 'мин',
-      note: 'Нажимая «Записаться», вы соглашаетесь на обработку имени и телефона для записи. За 24 часа до визита придёт SMS-напоминание.',
+      note: 'Нажимая «Записаться», вы соглашаетесь на обработку имени и телефона для записи. Напоминания придут за 24 и за 12 часов до визита.',
       noteWa: 'Заявка откроется в WhatsApp — Мария подтвердит время.',
       errName: 'Укажите ваше имя', errPhone: 'Проверьте номер телефона', errTaken: 'Это время только что заняли — выберите другое',
       errMany: 'У вас уже есть несколько записей — напишите Марии в WhatsApp',
@@ -1909,7 +1923,7 @@ var I18N = {
       online: 'Online booking', sending: 'Sending…', doneShort: 'You’re booked', sub: 'Manicure · Pedicure · Face care',
       date: 'Date', time: 'Time', contacts: 'Contact details', name: 'Your name', cta: 'Book now', ctaWa: 'Send via WhatsApp', pick: 'Choose a time',
       noSlots: 'No free time on this day — please choose another', h: 'h', min: 'min',
-      note: 'By booking you agree that your name and phone are used for this appointment. You will get an SMS reminder 24 hours before.',
+      note: 'By booking you agree that your name and phone are used for this appointment. You will get reminders 24 and 12 hours before your visit.',
       noteWa: 'Your request opens in WhatsApp — Maria will confirm the time.',
       errName: 'Please enter your name', errPhone: 'Please check the phone number', errTaken: 'This time was just taken — please choose another',
       errMany: 'You already have several bookings — please message Maria on WhatsApp',
@@ -1922,7 +1936,7 @@ var I18N = {
       online: 'Online ραντεβού', sending: 'Αποστολή…', doneShort: 'Κλείστηκε', sub: 'Μανικιούρ · Πεντικιούρ · Περιποίηση προσώπου',
       date: 'Ημερομηνία', time: 'Ώρα', contacts: 'Στοιχεία', name: 'Το όνομά σας', cta: 'Κλείστε ραντεβού', ctaWa: 'Αποστολή στο WhatsApp', pick: 'Επιλέξτε ώρα',
       noSlots: 'Δεν υπάρχουν διαθέσιμες ώρες — επιλέξτε άλλη ημέρα', h: 'ώ', min: 'λεπ.',
-      note: 'Κλείνοντας ραντεβού, συμφωνείτε στη χρήση ονόματος και τηλεφώνου για την κράτηση. 24 ώρες πριν θα λάβετε SMS υπενθύμισης.',
+      note: 'Κλείνοντας ραντεβού, συμφωνείτε στη χρήση ονόματος και τηλεφώνου για την κράτηση. Θα λάβετε υπενθυμίσεις 24 και 12 ώρες πριν.',
       noteWa: 'Το αίτημα θα ανοίξει στο WhatsApp — η Μαρία θα επιβεβαιώσει την ώρα.',
       errName: 'Συμπληρώστε το όνομά σας', errPhone: 'Ελέγξτε τον αριθμό τηλεφώνου', errTaken: 'Αυτή η ώρα μόλις κλείστηκε — επιλέξτε άλλη',
       errMany: 'Έχετε ήδη αρκετά ραντεβού — στείλτε μήνυμα στη Μαρία στο WhatsApp',
@@ -2217,6 +2231,9 @@ var I18N = {
     setIsland('idle');
     load();
   });
+
+  /* ИИ-ассистент оформил запись в чате → подтягиваем свежие слоты, чтобы занятое время исчезло из ленты */
+  window.addEventListener('msagent:booked', function () { state.time = null; load(); });
 
   load();
 })();

@@ -1,4 +1,4 @@
-# SMS-напоминания клиентам за 24 часа до визита (на греческом), см. booking/README.md
+# Напоминания клиентам за 24 и за 12 часов до визита (SMS и/или WhatsApp, на греческом), см. booking/README.md
 name: SMS reminders
 
 on:
@@ -46,6 +46,11 @@ jobs:
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_FROM: ${{ vars.TWILIO_FROM }}
           TWILIO_MESSAGING_SERVICE_SID: ${{ vars.TWILIO_MESSAGING_SERVICE_SID }}
+          REMINDER_CHANNEL: ${{ vars.REMINDER_CHANNEL || 'sms' }}
+          WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
+          WHATSAPP_PHONE_ID: ${{ vars.WHATSAPP_PHONE_ID }}
+          WHATSAPP_TEMPLATE_REMINDER: ${{ vars.WHATSAPP_TEMPLATE_REMINDER }}
+          WHATSAPP_REMINDER_LANG: ${{ vars.WHATSAPP_REMINDER_LANG || 'el' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 

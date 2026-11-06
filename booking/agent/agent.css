@@ -108,7 +108,6 @@ html.msa-lock,html.msa-lock body{overflow:hidden}
 .msa__send{flex:0 0 auto;width:42px;height:42px;border:0;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;cursor:pointer;transition:transform .3s var(--spring),opacity .3s,background-color .3s}
 .msa__send:active{transform:scale(.9)}.msa__send:disabled{opacity:.28;cursor:default}
 .msa__send svg{width:18px;height:18px}
-.msa__foot{padding:0 18px calc(8px + env(safe-area-inset-bottom));margin-top:-4px;text-align:center;font-size:11px;color:var(--sub)}
 @keyframes msaIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes msaDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
 @media (prefers-reduced-motion:reduce){.msa__sheet,.msa__back,.msa__m,.msa__chip,.msa__ticket,.msa__typing{transition:none;animation:none}.msa__typing i{animation:none}}
