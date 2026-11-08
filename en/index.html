@@ -159,18 +159,24 @@ p{margin:0}
 .progress{position:fixed;left:0;top:0;height:2px;width:100%;z-index:60;background:var(--gold);transform:scaleX(0);transform-origin:left;pointer-events:none}
 .header{position:fixed;left:0;right:0;top:0;z-index:50;color:var(--ink);transition:background-color .45s,box-shadow .45s,color .45s,transform .6s var(--ease)}
 .header__in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;height:84px}
-.header__left{display:flex;align-items:center;gap:6px}
-.nav{display:none;gap:26px}
+.header__left{display:flex;align-items:center;gap:16px}
+.nav{display:flex;gap:26px}
 .nav a{font-size:12.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:12px 0;position:relative;white-space:nowrap}
 .nav a::after{content:"";position:absolute;left:0;right:0;bottom:6px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ease)}
 .nav a:hover::after{transform:scaleX(1);transform-origin:left}
 .logo{justify-self:center;display:block;width:74px}
 .logo img{width:100%;transition:filter .45s}
 .header__right{justify-self:end;display:flex;align-items:center;gap:18px}
-.socials{display:none;gap:4px}
-.socials a{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;transition:background-color .3s}
-.socials a:hover{background:rgba(127,110,70,.14)}
-.socials svg{width:16px;height:16px}
+.socials{display:flex;gap:4px}
+.socials a,.hicon{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;transition:background-color .3s,box-shadow .3s;cursor:pointer;color:inherit}
+.socials a:hover,.hicon:hover{background:rgba(127,110,70,.14)}
+.socials svg,.hicon svg{width:16px;height:16px}
+.hicon--music{justify-content:center;gap:0}
+.hicon--music .eq{display:none}   /* скрипичный ключ вместо эквалайзера */
+.hicon--music.is-playing{background:rgba(127,110,70,.14);box-shadow:inset 0 0 0 1px currentColor}
+.hicon--music.is-playing svg{animation:clefPulse 2.4s ease-in-out infinite}
+@keyframes clefPulse{50%{transform:scale(1.14)}}
+@media (prefers-reduced-motion:reduce){.hicon--music.is-playing svg{animation:none}}
 .langs{display:flex;gap:2px;font-size:12.5px;font-weight:600;letter-spacing:.12em}
 .langs a{opacity:.55;padding:10px 6px;transition:opacity .3s}
 .langs a[aria-current="true"]{opacity:1;text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
@@ -182,15 +188,17 @@ p{margin:0}
 /* индикатор музыки в шапке телефона (виден только когда играет) */
 .music-mini{display:none;width:40px;height:40px;place-items:center;border-radius:50%;border:1px solid currentColor;opacity:.85}
 .music-mini.is-on{display:grid}
-@media (min-width:1240px){.nav,.socials{display:flex}.burger,.music-mini.is-on{display:none}}
-@media (max-width:640px){.logo{width:58px}.header__in{height:72px;gap:8px}.langs a{padding:10px 4px}}
+/* шапка всегда в одном виде: слева «О студии», «Услуги», ♪; справа Facebook, Instagram, RU, EN, EL */
+.burger,.music-mini{display:none !important}
+@media (max-width:1023px){.header__left{gap:14px}.nav{gap:14px}}
+@media (max-width:640px){.logo{width:50px}.header__in{height:68px;gap:6px}.header__left{gap:4px}.nav{gap:8px}.nav a{font-size:10.5px;letter-spacing:.06em}.header__right{gap:2px}.socials{gap:0}.socials a,.hicon{width:30px;height:30px}.socials svg,.hicon svg{width:15px;height:15px}.langs{font-size:10.5px;letter-spacing:.04em;gap:0}.langs a{padding:10px 3px}}
+@media (max-width:400px){.header__in{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.nav{gap:6px}.nav a{font-size:9.5px;letter-spacing:.04em}.header__left{gap:2px}.socials a,.hicon{width:28px;height:28px}}
 
 .header.is-scrolled{background:rgba(236,232,223,.9);-webkit-backdrop-filter:saturate(1.1) blur(14px);backdrop-filter:saturate(1.1) blur(14px);box-shadow:0 1px 0 var(--line)}
 .header.is-dark{color:var(--white)}
 .header.is-dark .logo img{filter:invert(1) brightness(1.1)}
 .header.is-dark .btn{--t:var(--ink)}
 .header.is-dark.is-scrolled{background:rgba(40,34,24,.42);box-shadow:none}
-.header.is-hidden{transform:translateY(-100%)}
 
 /* эквалайзер (музыка) */
 .eq{display:inline-flex;align-items:flex-end;gap:2px;height:11px}
@@ -748,14 +756,11 @@ body.menu-open .header .logo img{filter:none}
     <div class="header__left">
       <nav class="nav" aria-label="Menu">
         <a href="#about" data-scroll data-i18n="nav.about">О студии</a>
-        <a href="#prices" data-scroll data-i18n="nav.prices">Цены</a>
-        <a href="#clients" data-scroll data-i18n="nav.clients">Клиенты</a>
-        <a href="#studio" data-scroll data-i18n="nav.blog">Блог</a>
-        <a href="#contact" data-scroll data-i18n="nav.contacts">Контакты</a>
-        <a href="#vibe" data-music aria-pressed="false"><span data-i18n="nav.vibe">Вайб</span></a>
+        <a href="#prices" data-scroll data-i18n="nav.services">Услуги</a>
       </nav>
-      <button class="burger" aria-label="Menu" aria-expanded="false"><span></span></button>
-      <button class="music-mini" type="button" aria-label="Music off"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
+      <button class="hicon hicon--music" type="button" data-music aria-pressed="false" aria-label="Music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.6" cy="17.6" r="2.4"/><circle cx="16.6" cy="15.6" r="2.4"/><path d="M9 17.6V6.2l10-2v11.4M9 10.4l10-2"/></svg></button>
+      <button class="burger" aria-label="Menu" aria-expanded="false" hidden><span></span></button>
+      <button class="music-mini" type="button" aria-label="Music off" hidden><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
     </div>
     <a href="#top" class="logo" data-scroll aria-label="MS Nails Academy"><img src="/photos/logo.png" alt="MS Nails Academy"></a>
     <div class="header__right">
@@ -1292,7 +1297,7 @@ var I18N = {
   en: {
     'meta.title': 'Manicure & Pedicure in Peristeri, Athens · MS Nails Academy',
     'meta.desc': 'MS Nails Academy — Maria Semenova’s nail studio in Peristeri, Athens: Russian manicure, spa pedicure, gel & acrygel extensions, eyebrow care. Book online.',
-    'nav.about': 'About studio', 'nav.prices': 'Prices', 'nav.clients': 'Clients', 'nav.blog': 'Blog', 'nav.contacts': 'Contacts', 'nav.vibe': 'Vibe',
+    'nav.about': 'About studio', 'nav.prices': 'Prices', 'nav.clients': 'Clients', 'nav.blog': 'Blog', 'nav.contacts': 'Contacts', 'nav.vibe': 'Vibe', 'nav.services': 'Services',
     'cta.book': 'Book now', 'cta.session': 'Book a session', 'cta.prices': 'Services and prices',
     'hero.eyebrow': 'The philosophy of aesthetics in Athens',
     'hero.tag': 'Your personal guide to the world of flawless details',
@@ -1344,7 +1349,7 @@ var I18N = {
   el: {
     'meta.title': 'Μανικιούρ & Πεντικιούρ στο Περιστέρι, Αθήνα · MS Nails Academy',
     'meta.desc': 'MS Nails Academy — στούντιο νυχιών της Maria Semenova στο Περιστέρι, Αθήνα: ρωσικό μανικιούρ, spa πεντικιούρ, επεκτάσεις τζελ & ακρυτζελ, φρύδια. Κλείστε ραντεβού online.',
-    'nav.about': 'Σχετικά', 'nav.prices': 'Τιμές', 'nav.clients': 'Πελάτες', 'nav.blog': 'Άρθρα', 'nav.contacts': 'Επαφές', 'nav.vibe': 'Βάιμπ',
+    'nav.about': 'Σχετικά', 'nav.prices': 'Τιμές', 'nav.clients': 'Πελάτες', 'nav.blog': 'Άρθρα', 'nav.contacts': 'Επαφές', 'nav.vibe': 'Βάιμπ', 'nav.services': 'Υπηρεσίες',
     'cta.book': 'Ραντεβού', 'cta.session': 'Κλείστε ραντεβού', 'cta.prices': 'Υπηρεσίες και τιμές',
     'hero.eyebrow': 'Φιλοσοφία αισθητικής στην Αθήνα',
     'hero.tag': 'Ο προσωπικός σας οδηγός στον κόσμο των αψεγάδιαστων λεπτομερειών',
@@ -1632,17 +1637,11 @@ var I18N = {
   }
 
   /* ============ ШАПКА ============ */
-  var lastY = 0;
   ScrollTrigger.create({
     start: 0, end: 'max',
     onUpdate: function (self) {
       var y = self.scroll();
       header.classList.toggle('is-scrolled', y > 24);
-      if (!body.classList.contains('menu-open')) {
-        if (y > 400 && y > lastY + 2) { header.classList.add('is-hidden'); }
-        if (y < lastY - 2) { header.classList.remove('is-hidden'); }
-      }
-      lastY = y;
       gsap.set('.progress', { scaleX: self.progress });
     }
   });
