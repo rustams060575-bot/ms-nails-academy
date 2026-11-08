@@ -16,8 +16,8 @@
 
   var T = {
     ru: {
-      title: 'Ассистент от Miss Nails', sub: 'администратор студии Afina', iname: 'Афина', irole: 'ИИ-ассистент студии Miss Nails', ion: 'на связи', iph: 'Напишите Афине…', close: 'Закрыть', placeholder: 'Напишите сообщение…', send: 'Отправить',
-      hello: 'Здравствуйте! Меня зовут Афина, я цифровой администратор студии Miss Nails. Подскажу по услугам и ценам, помогу выбрать удобное время и оформлю запись. Как вас зовут?',
+      title: 'Ассистент от Nails Academy', sub: 'администратор студии Afina', iname: 'Афина', irole: 'ИИ-ассистент студии Nails Academy', ion: 'на связи', iph: 'Напишите Афине…', close: 'Закрыть', placeholder: 'Напишите сообщение…', send: 'Отправить',
+      hello: 'Здравствуйте! Меня зовут Афина, я цифровой администратор студии Nails Academy. Подскажу по услугам и ценам, помогу выбрать удобное время и оформлю запись. Как вас зовут?',
       chips: ['Какие услуги и цены?', 'Хочу записаться на маникюр', 'Ближайшее время на педикюр'],
       err: 'Не удалось получить ответ. Попробуйте ещё раз через минуту.',
       back: 'С возвращением, {name}! Рада вас видеть. Чем могу помочь сегодня?',
@@ -26,8 +26,8 @@
       svc: { manicure: 'Маникюр', pedicure: 'Педикюр', face: 'Уход за лицом' }, min: 'мин', locale: 'ru-RU'
     },
     en: {
-      title: 'Assistant by Miss Nails', sub: 'Afina studio administrator', iname: 'Athena', irole: 'AI assistant of Miss Nails studio', ion: 'online', iph: 'Write to Athena…', close: 'Close', placeholder: 'Type a message…', send: 'Send',
-      hello: 'Hello! My name is Athena, I’m the digital concierge of Miss Nails studio. I can tell you about services and prices, find a convenient time and book your appointment. May I have your name?',
+      title: 'Assistant by Nails Academy', sub: 'Afina studio administrator', iname: 'Athena', irole: 'AI assistant of Nails Academy studio', ion: 'online', iph: 'Write to Athena…', close: 'Close', placeholder: 'Type a message…', send: 'Send',
+      hello: 'Hello! My name is Athena, I’m the digital concierge of Nails Academy studio. I can tell you about services and prices, find a convenient time and book your appointment. May I have your name?',
       chips: ['Services and prices?', 'I’d like to book a manicure', 'Earliest pedicure slot'],
       err: 'Could not get a reply. Please try again in a minute.',
       back: 'Welcome back, {name}! Lovely to see you again. How can I help today?',
@@ -36,8 +36,8 @@
       svc: { manicure: 'Manicure', pedicure: 'Pedicure', face: 'Face care' }, min: 'min', locale: 'en-GB'
     },
     el: {
-      title: 'Βοηθός από Miss Nails', sub: 'διαχειριστής στούντιο Afina', iname: 'Αθηνά', irole: 'Βοηθός AI του στούντιο Miss Nails', ion: 'συνδεδεμένη', iph: 'Γράψτε στην Αθηνά…', close: 'Κλείσιμο', placeholder: 'Γράψτε ένα μήνυμα…', send: 'Αποστολή',
-      hello: 'Γεια σας! Με λένε Αθηνά και είμαι η ψηφιακή υπεύθυνος του στούντιο Miss Nails. Μπορώ να σας πω για υπηρεσίες και τιμές, να βρω ώρα και να κλείσω το ραντεβού σας. Πώς σας λένε;',
+      title: 'Βοηθός από Nails Academy', sub: 'διαχειριστής στούντιο Afina', iname: 'Αθηνά', irole: 'Βοηθός AI του στούντιο Nails Academy', ion: 'συνδεδεμένη', iph: 'Γράψτε στην Αθηνά…', close: 'Κλείσιμο', placeholder: 'Γράψτε ένα μήνυμα…', send: 'Αποστολή',
+      hello: 'Γεια σας! Με λένε Αθηνά και είμαι η ψηφιακή υπεύθυνος του στούντιο Nails Academy. Μπορώ να σας πω για υπηρεσίες και τιμές, να βρω ώρα και να κλείσω το ραντεβού σας. Πώς σας λένε;',
       chips: ['Υπηρεσίες και τιμές;', 'Θέλω ραντεβού για μανικιούρ', 'Πρώτη διαθέσιμη ώρα για πεντικιούρ'],
       err: 'Δεν ήταν δυνατή η απάντηση. Δοκιμάστε ξανά σε ένα λεπτό.',
       back: 'Καλώς ήρθατε ξανά, {name}! Χαίρομαι που σας βλέπω. Πώς μπορώ να βοηθήσω σήμερα;',
