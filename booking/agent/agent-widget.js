@@ -47,11 +47,6 @@
     }
   }[lang];
 
-  var shown = 0;      // сколько сообщений уже на экране (история теперь хранится на сервере, у гостьи в браузере только её clientId)
-  var busy = false;
-  var els = null;     // DOM диалога, создаётся при первом открытии
-  var lastFocus = null;
-  var host = document.querySelector('[data-msa-inline]');   // встроенный чат в блоке записи (вместо всплывающего окна)
 
   var SVC_IDS = ['manicure', 'pedicure', 'face'];
   /* Текущий выбор клиента в iOS-виджете записи (читаем из DOM, виджет не меняем) */
@@ -83,6 +78,12 @@
     return id;
   })();
 
+  /* Один диалог = один экземпляр. Всплывающее окно (кнопки в hero) и встроенный чат в блоке записи — два независимых экземпляра. */
+  function createChat(host) {
+  var shown = 0;      // сколько сообщений уже на экране (история теперь хранится на сервере, у гостьи в браузере только её clientId)
+  var busy = false;
+  var els = null;     // DOM диалога, создаётся при первом открытии
+  var lastFocus = null;
   /* Открытие чата: подтягиваем с сервера историю и имя; если гостья уже знакома — встречаем по имени */
   function startSession() {
     return fetch(API + '/agent/session?clientId=' + encodeURIComponent(clientId))
@@ -245,11 +246,6 @@
   }
 
   function open() {
-    if (host) {   // чат уже в блоке записи: просто переводим фокус в поле ввода
-      if (!els) { build(); }
-      setTimeout(function () { els.input.focus({ preventScroll: true }); }, 400);
-      return;
-    }
     if (!els) { build(); }
     lastFocus = document.activeElement;
     document.documentElement.classList.add('msa-lock');
@@ -258,22 +254,27 @@
     setTimeout(function () { els.input.focus({ preventScroll: true }); scroll(); }, 380);
   }
   function close() {
-    if (host) { return; }
     els.root.dataset.open = 'false';
     document.documentElement.classList.remove('msa-lock');
     if (lastFocus && lastFocus.focus) { lastFocus.focus({ preventScroll: true }); }
   }
 
-  /* кнопки вызова: показываем и вешаем обработчик (делегирование — кнопка может перерисовываться) */
-  function reveal() { document.querySelectorAll('[data-msa-open]').forEach(function (b) { b.hidden = false; }); }
-  document.addEventListener('click', function (e) { if (e.target.closest('[data-msa-open]')) { e.preventDefault(); open(); } });
-  reveal();
-  if (host) {   // чат строим, когда блок записи подъезжает к экрану
-    if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (en) { if (en.some(function (x) { return x.isIntersecting; })) { io.disconnect(); if (!els) { build(); } } }, { rootMargin: '300px' });
-      io.observe(host);
-    } else { build(); }
+  return { open: open, close: close, build: build, isBuilt: function () { return !!els; } };
   }
-  window.MSAgent = { open: open, close: close };
-  if (location.hash === '#agent') { open(); }   // удобно для проверки: страница.html#agent
+
+  /* кнопки вызова: показываем и вешаем обработчик (делегирование — кнопка может перерисовываться) */
+  var modal = createChat(null);
+  function reveal() { document.querySelectorAll('[data-msa-open]').forEach(function (b) { b.hidden = false; }); }
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-msa-open]')) { e.preventDefault(); modal.open(); } });
+  reveal();
+  var hostEl = document.querySelector('[data-msa-inline]');
+  if (hostEl) {   // встроенный чат строим, когда блок записи подъезжает к экрану
+    var inline = createChat(hostEl);
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (en) { if (en.some(function (x) { return x.isIntersecting; })) { io.disconnect(); if (!inline.isBuilt()) { inline.build(); } } }, { rootMargin: '300px' });
+      io.observe(hostEl);
+    } else { inline.build(); }
+  }
+  window.MSAgent = { open: modal.open, close: modal.close };
+  if (location.hash === '#agent') { modal.open(); }   // удобно для проверки: страница.html#agent
 })();
