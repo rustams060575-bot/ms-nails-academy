@@ -531,18 +531,17 @@ body.menu-open .header .logo img{filter:none}
 .ob__aura i:nth-child(2){width:min(40vw,540px);aspect-ratio:1;right:-6%;top:24%;background:#EBD5CB;animation-delay:-7s}
 .ob__aura i:nth-child(3){width:min(36vw,480px);aspect-ratio:1;left:38%;bottom:-18%;background:#CEC6B3;animation-delay:-13s}
 @keyframes obDrift{to{transform:translate3d(7%,-6%,0) scale(1.1)}}
-.ob__grid{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(44px,6vw,96px);align-items:center}
-.ob__grid>*{min-width:0}
-@media (min-width:960px){.ob__grid{grid-template-columns:minmax(0,1fr) minmax(390px,450px)}}
-.ob__text .h2{margin-top:18px}
-.ob__text .lead{margin-top:24px;max-width:31em}
-.ob__perks{list-style:none;padding:0;margin:34px 0 0;display:grid;gap:14px}
-.ob__perks li{display:flex;align-items:center;gap:14px;font-size:16px;color:var(--ink)}
-.ob__perks i{width:38px;height:38px;flex:0 0 38px;border-radius:12px;display:grid;place-items:center;background:rgba(251,250,246,.7);color:var(--gold-text);box-shadow:var(--shadow)}
-.ob__perks svg{width:17px;height:17px}
+.ob{min-height:100vh;min-height:100svh;display:flex;align-items:center;padding:clamp(84px,9vw,120px) 0 clamp(36px,5vw,64px)}
+.ob__wrap{width:100%;display:grid;gap:clamp(22px,2.6vw,34px)}
+.ob__head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px 48px}
+.ob__head .h2{font-size:calc(clamp(30px,3.2vw,50px) * var(--ds));line-height:1.04;margin:0}
+.ob__perks{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:12px 30px}
+.ob__perks li{display:flex;align-items:center;gap:11px;font-size:15px;color:var(--ink)}
+.ob__perks i{width:34px;height:34px;flex:0 0 34px;border-radius:11px;display:grid;place-items:center;background:rgba(251,250,246,.7);color:var(--gold-text);box-shadow:var(--shadow)}
+.ob__perks svg{width:16px;height:16px}
 
-.iw{--iw-ink:#1D1D1F;--iw-sub:rgba(60,60,67,.6);--iw-fill:rgba(118,118,128,.12);--iw-sep:rgba(60,60,67,.16);--iw-tile:rgba(255,255,255,.62);--iw-spring:cubic-bezier(.32,.72,0,1);
-  position:relative;width:100%;max-width:450px;margin-inline:auto;padding:16px 20px 22px;border-radius:44px;color:var(--iw-ink);
+.iw{--iw-ink:#1D1D1F;--iw-sub:rgba(60,60,67,.6);--iw-fill:rgba(118,118,128,.12);--iw-sep:rgba(60,60,67,.16);--iw-tile:rgba(255,255,255,.62);--iw-spring:cubic-bezier(.32,.72,0,1);--iw-sel:linear-gradient(160deg,#E2D3A8,#CDB783);--iw-sel-ink:#2E2A24;
+  position:relative;width:100%;margin-inline:auto;padding:30px 20px 22px;border-radius:36px;color:var(--iw-ink);
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue','Manrope',system-ui,sans-serif;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;
   background:linear-gradient(160deg,rgba(255,255,255,.74),rgba(255,255,255,.4));
   -webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);
@@ -552,7 +551,7 @@ body.menu-open .header .logo img{filter:none}
 .iw button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 
 /* Dynamic Island */
-.iw__island{position:relative;width:176px;height:36px;margin:0 auto 22px;border-radius:20px;background:#000;color:#fff;overflow:hidden;box-shadow:0 12px 26px -14px rgba(0,0,0,.6);
+.iw__island{position:absolute;z-index:3;top:0;left:50%;translate:-50% -50%;width:176px;height:36px;border-radius:20px;background:rgba(255,253,248,.96);color:var(--iw-ink);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(182,159,100,.4),0 12px 26px -16px rgba(110,90,40,.45);
   transition:width .6s var(--iw-spring),height .6s var(--iw-spring),border-radius .6s var(--iw-spring)}
 .iw__isl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:9px;padding:0 16px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transform:scale(.9);filter:blur(4px);transition:opacity .35s,transform .45s var(--iw-spring),filter .35s}
 .iw__island[data-state="idle"] .iw__isl--idle,.iw__island[data-state="loading"] .iw__isl--load,.iw__island[data-state="done"] .iw__isl--done,.iw__island[data-state="error"] .iw__isl--err{opacity:1;transform:none;filter:none;transition-delay:.12s}
@@ -563,21 +562,19 @@ body.menu-open .header .logo img{filter:none}
 .iw[data-mode="wa"] .iw__dot{background:#FF9F0A;animation-name:iwPulseA}
 @keyframes iwPulse{0%{box-shadow:0 0 0 0 rgba(52,199,89,.7)}70%{box-shadow:0 0 0 7px rgba(52,199,89,0)}100%{box-shadow:0 0 0 0 rgba(52,199,89,0)}}
 @keyframes iwPulseA{0%{box-shadow:0 0 0 0 rgba(255,159,10,.7)}70%{box-shadow:0 0 0 7px rgba(255,159,10,0)}100%{box-shadow:0 0 0 0 rgba(255,159,10,0)}}
-.iw__spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;animation:iwSpin .8s linear infinite}
+.iw__spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(182,159,100,.3);border-top-color:#9A8147;animation:iwSpin .8s linear infinite}
 @keyframes iwSpin{to{transform:rotate(360deg)}}
 .iw__isl--done{justify-content:flex-start;gap:12px;padding:0 14px}
-.iw__isl--done .iw__ok{width:40px;height:40px;flex:0 0 40px;border-radius:50%;background:var(--gold);display:grid;place-items:center}
+.iw__isl--done .iw__ok{width:40px;height:40px;flex:0 0 40px;border-radius:50%;background:var(--iw-sel);display:grid;place-items:center}
 .iw__isl--done .iw__ok svg{width:20px;height:20px}
 .iw__isl--done span{display:flex;flex-direction:column;line-height:1.25;min-width:0}
 .iw__isl--done b{font-size:14px}
-.iw__isl--done small{font-size:12.5px;font-weight:500;color:rgba(255,255,255,.62);overflow:hidden;text-overflow:ellipsis}
-.iw__isl--err{color:#FF6961}
+.iw__isl--done small{font-size:12.5px;font-weight:500;color:var(--iw-sub);overflow:hidden;text-overflow:ellipsis}
+.iw__isl--err{color:#B3261E}
 
-.iw__title{font-size:31px;font-weight:700;letter-spacing:-.03em;line-height:1.08}
-.iw__sub{margin-top:5px;font-size:15px;color:var(--iw-sub)}
 
 /* сегменты */
-.iw__seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);margin-top:20px;padding:2px;border-radius:11px;background:var(--iw-fill)}
+.iw__seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);margin-top:0;padding:2px;border-radius:11px;background:var(--iw-fill)}
 .iw__thumb{position:absolute;top:2px;bottom:2px;left:2px;width:calc((100% - 4px) / 3);border-radius:9px;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04);transform:translateX(calc(100% * var(--i,0)));transition:transform .5s var(--iw-spring)}
 .iw__seg button{position:relative;z-index:1;height:34px;padding:0 6px;border-radius:9px;font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:transform .2s var(--iw-spring)}
 .iw__seg button[aria-checked="true"]{font-weight:600}
@@ -589,22 +586,21 @@ body.menu-open .header .logo img{filter:none}
 .iw__label span{text-transform:none;letter-spacing:0}
 
 /* даты */
-.iw__days{display:flex;gap:8px;margin:0 -20px -8px;padding:2px 20px 16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:20px;scrollbar-width:none;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent)}
+.iw__days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;padding:2px 0}
 .iw__days::-webkit-scrollbar{display:none}
-.iw__day{flex:0 0 52px;height:68px;border-radius:17px;background:var(--iw-tile);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;scroll-snap-align:start;
+.iw__day{height:58px;border-radius:15px;background:var(--iw-tile);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
   transition:transform .25s var(--iw-spring),background-color .3s,color .3s,box-shadow .3s}
 .iw__day small{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--iw-sub);transition:color .3s}
-.iw__day b{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
-.iw__day[aria-pressed="true"]{background:var(--iw-ink);color:#fff;box-shadow:0 10px 20px -10px rgba(0,0,0,.5)}
-.iw__day[aria-pressed="true"] small{color:rgba(255,255,255,.65)}
+.iw__day b{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.iw__day[aria-pressed="true"]{background:var(--iw-sel);color:var(--iw-sel-ink);box-shadow:0 10px 20px -12px rgba(140,115,50,.6)}
+.iw__day[aria-pressed="true"] small{color:rgba(46,42,36,.6)}
 .iw__day:disabled{opacity:.32;cursor:default}
 .iw__day:not(:disabled):active{transform:scale(.92)}
 
 /* время */
-.iw__times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;min-height:96px;align-content:start}
-.iw__time{height:42px;border-radius:13px;background:var(--iw-tile);font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;transition:transform .25s var(--iw-spring),background-color .3s,color .3s;animation:iwIn .45s var(--iw-spring) both}
-.iw__time[aria-pressed="true"]{background:var(--iw-ink);color:#fff;animation:iwPop .5s var(--iw-spring) 0s both !important}
+.iw__times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-content:start}
+.iw__time{height:40px;border-radius:13px;background:var(--iw-tile);font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;transition:transform .25s var(--iw-spring),background-color .3s,color .3s;animation:iwIn .45s var(--iw-spring) both}
+.iw__time[aria-pressed="true"]{background:var(--iw-sel);color:var(--iw-sel-ink);animation:iwPop .5s var(--iw-spring) 0s both !important}
 .iw__time:active{transform:scale(.92)}
 @keyframes iwPop{0%{transform:scale(.92)}55%{transform:scale(1.06)}}
 .iw__day[aria-pressed="true"]{animation:iwPop .5s var(--iw-spring) both}
@@ -637,16 +633,16 @@ body.menu-open .header .logo img{filter:none}
 .iw__hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 
 /* кнопка */
-.iw__cta{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;margin-top:18px;border:0;border-radius:18px;background:var(--iw-ink);color:#fff;font-size:17px;font-weight:600;overflow:hidden;isolation:isolate;
-  box-shadow:0 16px 30px -16px rgba(0,0,0,.6);transition:transform .3s var(--iw-spring),opacity .3s,box-shadow .3s}
+.iw__cta{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:54px;margin-top:14px;border:0;border-radius:18px;background:var(--iw-sel);color:var(--iw-sel-ink);font-size:17px;font-weight:600;overflow:hidden;isolation:isolate;
+  box-shadow:0 16px 30px -18px rgba(140,115,50,.7);transition:transform .3s var(--iw-spring),opacity .3s,box-shadow .3s}
 .iw__cta small{font-weight:500;opacity:.6}
-.iw__cta:not(:disabled):hover{box-shadow:0 20px 36px -16px rgba(0,0,0,.65)}
+.iw__cta:not(:disabled):hover{box-shadow:0 20px 36px -16px rgba(140,115,50,.8)}
 .iw__cta:not(:disabled):active{transform:scale(.965)}
 .iw__cta:disabled{background:var(--iw-fill);color:var(--iw-sub);cursor:default;box-shadow:none}
 /* белый текст активной кнопки: «.iw button{color:inherit}» (специфичность выше) делал его тёмным на тёмном */
-.iw .iw__cta:not(:disabled){color:#fff}
+.iw .iw__cta:not(:disabled){color:var(--iw-sel-ink)}
 .iw__cta.is-busy{opacity:.7;pointer-events:none}
-.iw__ripple{position:absolute;z-index:-1;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:rgba(255,255,255,.35);transform:scale(0);animation:iwRipple .7s ease-out forwards;pointer-events:none}
+.iw__ripple{position:absolute;z-index:-1;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:rgba(255,255,255,.5);transform:scale(0);animation:iwRipple .7s ease-out forwards;pointer-events:none}
 @keyframes iwRipple{to{transform:scale(28);opacity:0}}
 .iw__msg{min-height:0;margin:10px 4px 0;font-size:13.5px;line-height:1.4;color:#D70015;text-align:center}
 .iw__msg:empty{display:none}
@@ -674,7 +670,35 @@ body.menu-open .header .logo img{filter:none}
 .iw__ghost:active{transform:scale(.965)}
 .iw__ghost svg{width:18px;height:18px}
 .iw__link{margin-top:14px;font-size:15px;font-weight:500;color:var(--iw-sub);background:none;border:0}
-@media (max-width:400px){.iw{padding:14px 16px 20px;border-radius:38px}.iw__days{margin:0 -16px;padding-inline:16px}.iw__title{font-size:27px}.iw__seg button{font-size:12.5px}.iw__time{font-size:14px}}
+@media (max-width:400px){.iw{padding:28px 14px 18px;border-radius:30px}.iw__seg button{font-size:12.5px}.iw__time{font-size:14px}.iw__days{gap:5px}}
+
+/* раскладка: запись (дата · время · контакты) слева, живой чат с Афиной справа */
+.ob__body{display:grid;gap:22px;align-items:stretch}
+.ob__body>*{min-width:0}
+.ob__chat{min-height:520px}
+.iw__col{min-width:0}
+.iw__col+.iw__col{margin-top:6px}
+.iw__col .iw__label:first-child{margin-top:0}
+.iw__done{max-width:520px;margin-inline:auto}
+.iw[data-view="done"]{padding-top:50px}
+@media (min-width:1100px){
+  .ob__body{grid-template-columns:minmax(0,1fr) minmax(360px,410px);gap:26px}
+  .ob__chat{min-height:0}
+  .iw{padding:34px 36px 28px;margin:0}
+  .iw__form{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);column-gap:0;row-gap:18px;align-items:start}
+  .iw__col--when{padding-right:30px}
+  .iw__col--time{padding-left:30px;border-left:1px solid var(--iw-sep);margin-top:0}
+  .iw__col--time>.iw__label:first-child{height:34px;margin:0 4px 10px;align-items:center}
+  .iw__col--when .iw__label{margin-top:14px}
+  .iw__col--when .iw__dur{margin-top:8px}
+  .iw__day{height:52px}
+  .iw__col--you{grid-column:1/-1;margin-top:0;padding-top:16px;border-top:1px solid var(--iw-sep);display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);column-gap:30px;align-items:start}
+  .iw__col--you>.iw__label{grid-column:1/-1;margin:0 4px 10px}
+  .iw__col--you>.iw__group{grid-column:1;grid-row:2/4}
+  .iw__col--you>.iw__cta{grid-column:2;grid-row:2;margin-top:0}
+  .iw__col--you>.iw__note{grid-column:2;grid-row:3;margin:8px 4px 0}
+  .iw__col--you>.iw__msg{grid-column:1/-1;grid-row:4}
+}
 
 /* ============ ЛАЙТБОКС ============ */
 .lightbox{position:fixed;inset:0;z-index:90;background:rgba(36,30,20,.94);display:grid;place-items:center;opacity:0;visibility:hidden;transition:opacity .5s var(--ease),visibility .5s}
@@ -1086,11 +1110,9 @@ body.menu-open .header .logo img{filter:none}
   <!-- ============ ОНЛАЙН-ЗАПИСЬ (iOS-виджет · booking/README.md) ============ -->
   <section class="ob" id="book" data-theme="light">
     <div class="ob__aura" aria-hidden="true"><i></i><i></i><i></i></div>
-    <div class="container ob__grid">
-      <div class="ob__text">
-        <span class="eyebrow" data-fade data-i18n="ob.eyebrow">Онлайн-запись</span>
+    <div class="container ob__wrap">
+      <div class="ob__head">
         <h2 class="h2 display" data-chars data-i18n="ob.title">Ваше время — <em>в одно касание</em></h2>
-        <p class="lead" data-lines data-i18n="ob.lead">Выберите ритуал, день и удобное время. Мария получит запись мгновенно, а за сутки и за 12 часов до визита мы бережно напомним о записи.</p>
         <ul class="ob__perks" data-stagger>
           <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><span data-i18n="ob.p1">Подтверждение сразу</span></li>
           <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3"/></svg></i><span data-i18n="ob.p2">Напоминания за 24 и 12 часов</span></li>
@@ -1098,27 +1120,30 @@ body.menu-open .header .logo img{filter:none}
         </ul>
       </div>
 
+      <div class="ob__body">
       <div class="iw" data-iw data-view="form" data-mode="api" data-fade>
         <div class="iw__island" data-state="idle" aria-live="polite">
           <div class="iw__isl iw__isl--idle"><i class="iw__dot"></i><span data-iw-t="online"></span></div>
           <div class="iw__isl iw__isl--load"><i class="iw__spin"></i><span data-iw-t="sending"></span></div>
-          <div class="iw__isl iw__isl--done"><i class="iw__ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><span><b data-iw-t="doneShort"></b><small data-iw-island-when></small></span></div>
+          <div class="iw__isl iw__isl--done"><i class="iw__ok"><svg viewBox="0 0 24 24" fill="none" stroke="#2E2A24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><span><b data-iw-t="doneShort"></b><small data-iw-island-when></small></span></div>
           <div class="iw__isl iw__isl--err"><span data-iw-island-err></span></div>
         </div>
 
         <div class="iw__form">
-          <div class="iw__title">MS Nails Academy</div>
-          <div class="iw__sub" data-iw-t="sub"></div>
-
+          <div class="iw__col iw__col--when">
           <div class="iw__seg" role="radiogroup" data-iw-seg><span class="iw__thumb"></span></div>
           <div class="iw__dur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-iw-dur></span></div>
 
           <div class="iw__label"><b data-iw-t="date"></b><span data-iw-month></span></div>
           <div class="iw__days" data-iw-days data-lenis-prevent></div>
+          </div>
 
+          <div class="iw__col iw__col--time">
           <div class="iw__label"><b data-iw-t="time"></b></div>
           <div class="iw__times" data-iw-times></div>
+          </div>
 
+          <div class="iw__col iw__col--you">
           <div class="iw__label"><b data-iw-t="contacts"></b></div>
           <form class="iw__group" data-iw-fields novalidate>
             <div class="iw__row"><input type="text" name="name" autocomplete="name" maxlength="60" data-iw-ph="name" required></div>
@@ -1139,7 +1164,7 @@ body.menu-open .header .logo img{filter:none}
           <button type="button" class="iw__cta" data-iw-cta disabled></button>
           <p class="iw__msg" role="alert" data-iw-msg></p>
           <p class="iw__note" data-iw-note></p>
-          <button type="button" class="msa-open" data-msa-open hidden><i aria-hidden="true"></i><span data-i18n="ob.agent">Нужен совет? Спросите ИИ-ассистента</span></button>
+          </div>
         </div>
 
         <div class="iw__done">
@@ -1150,6 +1175,8 @@ body.menu-open .header .logo img{filter:none}
           <button type="button" class="iw__ghost" data-iw-ics><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v4M10 15h4"/></svg><span data-iw-t="ics"></span></button>
           <button type="button" class="iw__link" data-iw-again data-iw-t="again"></button>
         </div>
+      </div>
+      <aside class="ob__chat" data-msa-inline data-fade aria-label="Athena"></aside>
       </div>
     </div>
   </section>

@@ -16,7 +16,7 @@
 
   var T = {
     ru: {
-      title: 'Ассистент от Miss Nails', sub: 'администратор студии Afina', close: 'Закрыть', placeholder: 'Напишите сообщение…', send: 'Отправить',
+      title: 'Ассистент от Miss Nails', sub: 'администратор студии Afina', iname: 'Афина', irole: 'ИИ-ассистент студии Miss Nails', ion: 'на связи', iph: 'Напишите Афине…', close: 'Закрыть', placeholder: 'Напишите сообщение…', send: 'Отправить',
       hello: 'Здравствуйте! Меня зовут Афина, я цифровой администратор студии Miss Nails. Подскажу по услугам и ценам, помогу выбрать удобное время и оформлю запись. Как вас зовут?',
       chips: ['Какие услуги и цены?', 'Хочу записаться на маникюр', 'Ближайшее время на педикюр'],
       err: 'Не удалось получить ответ. Попробуйте ещё раз через минуту.',
@@ -26,7 +26,7 @@
       svc: { manicure: 'Маникюр', pedicure: 'Педикюр', face: 'Уход за лицом' }, min: 'мин', locale: 'ru-RU'
     },
     en: {
-      title: 'Assistant by Miss Nails', sub: 'Afina studio administrator', close: 'Close', placeholder: 'Type a message…', send: 'Send',
+      title: 'Assistant by Miss Nails', sub: 'Afina studio administrator', iname: 'Athena', irole: 'AI assistant of Miss Nails studio', ion: 'online', iph: 'Write to Athena…', close: 'Close', placeholder: 'Type a message…', send: 'Send',
       hello: 'Hello! My name is Athena, I’m the digital concierge of Miss Nails studio. I can tell you about services and prices, find a convenient time and book your appointment. May I have your name?',
       chips: ['Services and prices?', 'I’d like to book a manicure', 'Earliest pedicure slot'],
       err: 'Could not get a reply. Please try again in a minute.',
@@ -36,7 +36,7 @@
       svc: { manicure: 'Manicure', pedicure: 'Pedicure', face: 'Face care' }, min: 'min', locale: 'en-GB'
     },
     el: {
-      title: 'Βοηθός από Miss Nails', sub: 'διαχειριστής στούντιο Afina', close: 'Κλείσιμο', placeholder: 'Γράψτε ένα μήνυμα…', send: 'Αποστολή',
+      title: 'Βοηθός από Miss Nails', sub: 'διαχειριστής στούντιο Afina', iname: 'Αθηνά', irole: 'Βοηθός AI του στούντιο Miss Nails', ion: 'συνδεδεμένη', iph: 'Γράψτε στην Αθηνά…', close: 'Κλείσιμο', placeholder: 'Γράψτε ένα μήνυμα…', send: 'Αποστολή',
       hello: 'Γεια σας! Με λένε Αθηνά και είμαι η ψηφιακή υπεύθυνος του στούντιο Miss Nails. Μπορώ να σας πω για υπηρεσίες και τιμές, να βρω ώρα και να κλείσω το ραντεβού σας. Πώς σας λένε;',
       chips: ['Υπηρεσίες και τιμές;', 'Θέλω ραντεβού για μανικιούρ', 'Πρώτη διαθέσιμη ώρα για πεντικιούρ'],
       err: 'Δεν ήταν δυνατή η απάντηση. Δοκιμάστε ξανά σε ένα λεπτό.',
@@ -51,6 +51,7 @@
   var busy = false;
   var els = null;     // DOM диалога, создаётся при первом открытии
   var lastFocus = null;
+  var host = document.querySelector('[data-msa-inline]');   // встроенный чат в блоке записи (вместо всплывающего окна)
 
   var SVC_IDS = ['manicure', 'pedicure', 'face'];
   /* Текущий выбор клиента в iOS-виджете записи (читаем из DOM, виджет не меняем) */
@@ -121,26 +122,30 @@
 
   function build() {
     var root = document.createElement('div');
-    root.className = 'msa';
+    root.className = host ? 'msa msa--inline' : 'msa';
     root.setAttribute('data-lenis-prevent', '');
-    root.setAttribute('role', 'dialog');
-    root.setAttribute('aria-modal', 'true');
-    root.setAttribute('aria-label', T.title);
-    root.innerHTML =
-      '<div class="msa__back" data-msa-close></div>' +
-      '<div class="msa__sheet">' +
-        '<div class="msa__head"><div class="msa__ava" aria-hidden="true"></div>' +
+    if (!host) { root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); }
+    root.setAttribute('aria-label', host ? T.iname : T.title);
+    var head = host
+      ? '<div class="msa__head"><div class="msa__ava" aria-hidden="true"></div>' +
+          '<div class="msa__who"><b>' + esc(T.iname) + ' <em>AI</em></b><span>' + esc(T.irole) + '</span></div>' +
+          '<span class="msa__on"><i></i>' + esc(T.ion) + '</span></div>'
+      : '<div class="msa__head"><div class="msa__ava" aria-hidden="true"></div>' +
           '<div class="msa__who"><b>' + esc(T.title) + '</b><span>' + esc(T.sub) + '</span></div>' +
-          '<button type="button" class="msa__x" data-msa-close aria-label="' + esc(T.close) + '">' + ICON_X + '</button></div>' +
+          '<button type="button" class="msa__x" data-msa-close aria-label="' + esc(T.close) + '">' + ICON_X + '</button></div>';
+    root.innerHTML =
+      (host ? '' : '<div class="msa__back" data-msa-close></div>') +
+      '<div class="msa__sheet">' + head +
         '<div class="msa__list" role="log" aria-live="polite"></div>' +
-        '<form class="msa__form"><textarea class="msa__in" rows="1" maxlength="1500" placeholder="' + esc(T.placeholder) + '" aria-label="' + esc(T.placeholder) + '"></textarea>' +
+        '<form class="msa__form"><textarea class="msa__in" rows="1" maxlength="1500" placeholder="' + esc(host ? T.iph : T.placeholder) + '" aria-label="' + esc(host ? T.iph : T.placeholder) + '"></textarea>' +
           '<button type="submit" class="msa__send" aria-label="' + esc(T.send) + '" disabled>' + ICON_UP + '</button></form>' +
       '</div>';
-    document.body.appendChild(root);
+    (host || document.body).appendChild(root);
+    if (host) { root.dataset.open = 'true'; }
     els = { root: root, list: root.querySelector('.msa__list'), form: root.querySelector('.msa__form'), input: root.querySelector('.msa__in'), send: root.querySelector('.msa__send') };
 
     root.addEventListener('click', function (e) { if (e.target.closest('[data-msa-close]')) { close(); } });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && els.root.dataset.open === 'true') { close(); } });
+    document.addEventListener('keydown', function (e) { if (!host && e.key === 'Escape' && els.root.dataset.open === 'true') { close(); } });
     els.input.addEventListener('input', function () {
       els.input.style.height = 'auto';
       els.input.style.height = Math.min(els.input.scrollHeight, 120) + 'px';
@@ -240,6 +245,11 @@
   }
 
   function open() {
+    if (host) {   // чат уже в блоке записи: просто переводим фокус в поле ввода
+      if (!els) { build(); }
+      setTimeout(function () { els.input.focus({ preventScroll: true }); }, 400);
+      return;
+    }
     if (!els) { build(); }
     lastFocus = document.activeElement;
     document.documentElement.classList.add('msa-lock');
@@ -248,6 +258,7 @@
     setTimeout(function () { els.input.focus({ preventScroll: true }); scroll(); }, 380);
   }
   function close() {
+    if (host) { return; }
     els.root.dataset.open = 'false';
     document.documentElement.classList.remove('msa-lock');
     if (lastFocus && lastFocus.focus) { lastFocus.focus({ preventScroll: true }); }
@@ -257,6 +268,12 @@
   function reveal() { document.querySelectorAll('[data-msa-open]').forEach(function (b) { b.hidden = false; }); }
   document.addEventListener('click', function (e) { if (e.target.closest('[data-msa-open]')) { e.preventDefault(); open(); } });
   reveal();
+  if (host) {   // чат строим, когда блок записи подъезжает к экрану
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (en) { if (en.some(function (x) { return x.isIntersecting; })) { io.disconnect(); if (!els) { build(); } } }, { rootMargin: '300px' });
+      io.observe(host);
+    } else { build(); }
+  }
   window.MSAgent = { open: open, close: close };
   if (location.hash === '#agent') { open(); }   // удобно для проверки: страница.html#agent
 })();
