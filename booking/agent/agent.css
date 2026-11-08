@@ -115,7 +115,7 @@ html.msa-lock,html.msa-lock body{overflow:hidden}
 /* ============ Встроенный чат с Афиной в блоке записи (светлый, quiet luxury) ============ */
 .msa--inline{--ink:#2E2A24;--gold:#B69F64;position:relative;inset:auto;z-index:auto;display:block;height:100%;padding:0;visibility:visible;pointer-events:auto}
 .msa--inline .msa__sheet{max-width:none;width:100%;height:100%;min-height:0;border-radius:36px;transform:none;opacity:1;transition:none;
-  background:linear-gradient(160deg,rgba(255,255,255,.78),rgba(255,252,246,.5));
+  background:linear-gradient(160deg,rgba(255,255,255,.5),rgba(255,252,246,.26));
   -webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);
   border:1px solid rgba(255,255,255,.75);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 40px 90px -36px rgba(70,56,30,.42),0 10px 28px -14px rgba(70,56,30,.2)}
 .msa--inline .msa__head{padding:20px 22px 16px;border-bottom:1px solid rgba(60,60,67,.12)}
@@ -136,3 +136,11 @@ html.msa-lock,html.msa-lock body{overflow:hidden}
 .msa--inline .msa__send{background:linear-gradient(160deg,#E2D3A8,#CDB783);color:#2E2A24}
 .msa--inline .msa__chip{background:rgba(255,255,255,.85)}
 @media (max-width:1099px){.msa--inline,.msa--inline .msa__sheet{height:540px}}
+
+/* Блик по экранчику чата Афины: тот же, что у кнопки ассистента в hero (цвет, прозрачность, пробег раз в 3 секунды) */
+.msa--inline .msa__sheet{isolation:isolate}
+.msa--inline .msa__sheet::after{content:"";position:absolute;z-index:-1;top:-40%;bottom:-40%;left:0;width:42%;pointer-events:none;
+  background:linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.14) 30%,rgba(255,255,255,.62) 50%,rgba(255,255,255,.14) 70%,rgba(255,255,255,0) 100%);
+  transform:translateX(-160%) skewX(-20deg);animation:msaGlassSweep 3s cubic-bezier(.45,.05,.25,1) infinite}
+@keyframes msaGlassSweep{0%{transform:translateX(-160%) skewX(-20deg)}36%,100%{transform:translateX(420%) skewX(-20deg)}}
+@media (prefers-reduced-motion:reduce){.msa--inline .msa__sheet::after{animation:none}}
