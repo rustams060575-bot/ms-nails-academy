@@ -884,7 +884,12 @@ async function handler(req, res) {
       ].filter(function (l, i) { return l !== '' || i === 1 || i === 5; }).join('\n'), 'новая запись Treatwell', twButtons(b, '✅ Принято'));
     }
   });
-  if (ENV.IMAP_USER && ENV.IMAP_PASSWORD) {   // фоновый забор писем Treatwell из ящика Афины
+  /* Бот и почта - одиночки: один токен бота и один ящик на весь мир. В продакшене включены, локально выключены по умолчанию
+     (иначе локальный запуск перехватит сообщения у Render: конфликт 409 и двойные уведомления). Включить локально: TELEGRAM_BOT_POLLING=on / IMAP_POLLING=on */
+  const POLL_BOT = Boolean(ENV.TELEGRAM_BOT_TOKEN) && (PROD ? ENV.TELEGRAM_BOT_POLLING !== 'off' : ENV.TELEGRAM_BOT_POLLING === 'on');
+  const POLL_MAIL = Boolean(ENV.IMAP_USER && ENV.IMAP_PASSWORD) && (PROD ? ENV.IMAP_POLLING !== 'off' : ENV.IMAP_POLLING === 'on');
+  const ATHENA_EMAIL = ENV.ATHENA_EMAIL || ENV.IMAP_USER || '';   // адрес для Treatwell Connect: по умолчанию тот самый ящик, который читает IMAP
+  if (POLL_MAIL) {   // фоновый забор писем Treatwell из ящика Афины
     IMAPL = createEmailListener({
       user: ENV.IMAP_USER, password: ENV.IMAP_PASSWORD, host: ENV.IMAP_HOST, port: ENV.IMAP_PORT, intervalSec: ENV.IMAP_INTERVAL_SEC,
       from: ENV.IMAP_FROM || 'noreply@treatwell.gr', log: console.log,
@@ -895,9 +900,14 @@ async function handler(req, res) {
   ['SIGTERM', 'SIGINT'].forEach(function (sig) {
     process.on(sig, function () { MEM.flush().finally(function () { process.exit(0); }); setTimeout(function () { process.exit(0); }, 8000).unref(); });
   });
-  if (ENV.TELEGRAM_BOT_TOKEN && ENV.TELEGRAM_BOT_POLLING !== 'off') { await TGA.startPolling(); }   // бот принимает /start activate_…
-  const bound = await BS.adminChatId();
-  const activation = bound ? null : await TGA.generateActivation();   // пока администратор не привязан
+  if (POLL_BOT) { await TGA.startPolling(); }   // бот принимает /start activate_…
+  let bound = '', activation = null;
+  try {
+    bound = await BS.adminChatId();
+    activation = bound ? null : await TGA.generateActivation();   // пока администратор не привязан
+  } catch (e) {   // например, нет доступа к репозиторию с config.json: сервис всё равно должен подняться (запись сайта работает отдельно)
+    console.error('  [Хранилище] Не удалось прочитать/записать конфигурацию: ' + e.message);
+  }
   http.createServer(handler).listen(PORT, HOST, function () {
     if (IMAPL) { setTimeout(function () { IMAPL.start(); }, 300); }   // статус подключения выводится после основной шапки
     console.log('\n  MS Nails Academy · ИИ-ассистент записи (' + (PROD ? 'продакшен' : 'локально') + ')');
@@ -906,11 +916,12 @@ async function handler(req, res) {
     console.log('  ИИ:            ' + (API_KEY ? 'Claude (' + MODEL + ')' : 'ДЕМО — нет ANTHROPIC_API_KEY'));
     console.log('  Хранилище:     ' + (ghStore ? 'GitHub · ' + ENV.BOOKINGS_REPO : path.relative(ROOT, DATA_FILE) + ' (локальный файл)'));
     console.log('  Память гостей: ' + MEM.backendName + (ghStore ? ' · ' + ENV.BOOKINGS_REPO + '/' + (ENV.MEMORY_DIR || 'memory') : ' · ' + path.relative(ROOT, path.join(DATA_DIR, 'memory'))) + ' · админка ' + (ADMIN_TOKEN ? 'включена (/admin)' : 'выключена (нет ADMIN_TOKEN)'));
-    console.log('  Telegram:      ' + (ENV.TELEGRAM_BOT_TOKEN && ENV.TELEGRAM_CHAT_ID ? 'включён' : 'выключен (нет TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID)'));
+    console.log('  Telegram:      ' + (!ENV.TELEGRAM_BOT_TOKEN ? 'выключен (нет TELEGRAM_BOT_TOKEN)' : POLL_BOT ? 'бот слушает сообщения' : 'токен задан, приём сообщений выключен' + (PROD ? ' (TELEGRAM_BOT_POLLING=off)' : ' локально — не мешает Render; включить: TELEGRAM_BOT_POLLING=on')));
+    console.log('  Почта IMAP:    ' + (!ENV.IMAP_USER || !ENV.IMAP_PASSWORD ? 'выключена (нет IMAP_USER / IMAP_PASSWORD)' : POLL_MAIL ? 'опрос включён' : 'учётные данные есть, опрос выключен' + (PROD ? ' (IMAP_POLLING=off)' : ' локально — не мешает Render; включить: IMAP_POLLING=on')));
     const baseUrl = (ENV.PUBLIC_BASE_URL || 'https://ms-nails-academy.onrender.com').replace(/\/+$/, '');
     console.log('  Treatwell:     приём писем ' + (ENV.EXTERNAL_BOOKING_TOKEN ? 'включён' : (PROD ? 'ВЫКЛЮЧЕН (нет EXTERNAL_BOOKING_TOKEN)' : 'открыт локально (нет EXTERNAL_BOOKING_TOKEN)')));
     console.log('    Вебхук почты:    ' + baseUrl + '/api/external-booking/email' + (ENV.EXTERNAL_BOOKING_TOKEN ? '?key=<EXTERNAL_BOOKING_TOKEN>' : ''));
-    console.log('    Email Афины:     ' + (ENV.ATHENA_EMAIL ? ENV.ATHENA_EMAIL + '  (для Treatwell Connect)' : 'не задан · укажите ATHENA_EMAIL после настройки почтового маршрута (server/mail/README.md)'));
+    console.log('    Email Афины:     ' + (ATHENA_EMAIL ? ATHENA_EMAIL + '  (укажите этот адрес в Treatwell Connect)' : 'не задан · укажите ATHENA_EMAIL или IMAP_USER'));
     console.log('  Администратор: ' + (bound ? 'привязан (admin_chat_id ' + bound + ')' : 'не привязан'));
     if (!bound && (!PROD || ENV.PRINT_ACTIVATION_LINK === 'true')) {   // в продакшене секретную ссылку в логи не пишем, если не просили
       console.log('  Постоянная ссылка авторизации Марии (без срока, сгорает после первого успешного входа):\n    ' + activation.link);

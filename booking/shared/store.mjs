@@ -49,7 +49,11 @@ export function createStore({ token, repo, path = 'bookings.json', branch = 'mai
     if (sha) { body.sha = sha; }
     const r = await fetch(url, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, headers), body: JSON.stringify(body) });
     if (r.status === 409 || (r.status === 422 && !sha)) { return false; }
-    if (!r.ok) { throw new Error('GitHub write failed: ' + r.status); }
+    if (!r.ok) {
+      const hint = r.status === 404 ? ' — репозиторий "' + repo + '" не найден или у токена нет доступа (нужен Contents: Read and write именно к нему); проверьте имя BOOKINGS_REPO и GITHUB_TOKEN'
+        : r.status === 401 ? ' — токен GitHub недействителен' : r.status === 403 ? ' — у токена нет права записи в ' + repo : '';
+      throw new Error('GitHub write failed: ' + r.status + ' (' + path + ')' + hint);
+    }
     return true;
   }
 

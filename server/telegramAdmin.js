@@ -163,6 +163,8 @@ function createTelegramAdmin(cfg) {
       const me = await (await fetch('https://api.telegram.org/bot' + token + '/getMe', { signal: AbortSignal.timeout(8000) })).json();
       if (me.ok && me.result && me.result.username) { botUsername = me.result.username; }
     } catch (e) { /* остаёмся с именем из настроек */ }
+    /* вебхук и long polling взаимоисключающи: если бот когда-либо был подключён через вебхук, getUpdates вернёт 409 - снимаем его (непрочитанные сообщения не теряем) */
+    try { await fetch('https://api.telegram.org/bot' + token + '/deleteWebhook?drop_pending_updates=false', { signal: AbortSignal.timeout(8000) }); } catch (e) { /* не критично */ }
     let offset = 0;
     log('  Telegram-бот:  @' + botUsername + ' · ждёт /start activate_… (long polling)');
     (async function loop() {
@@ -171,7 +173,7 @@ function createTelegramAdmin(cfg) {
           const r = await fetch('https://api.telegram.org/bot' + token + '/getUpdates?timeout=25&offset=' + offset + '&allowed_updates=%5B%22message%22%2C%22callback_query%22%5D');
           const j = await r.json();
           if (!j.ok) {
-            if (j.error_code === 409) { log('  [Telegram] getUpdates: конфликт (другой экземпляр бота уже слушает). Повтор через минуту.'); await sleep(60000); continue; }
+            if (j.error_code === 409) { log('  [Telegram] getUpdates: конфликт 409 — токен бота сейчас слушает другой экземпляр (обычно старый деплой, который вот-вот остановится, или локальный запуск). Повтор через 15 с.'); await sleep(15000); continue; }
             throw new Error(j.description || r.status);
           }
           for (const u of j.result) {
