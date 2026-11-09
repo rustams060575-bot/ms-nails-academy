@@ -10,6 +10,8 @@
     GET  /agent/session     история диалога и имя гостьи (чтобы чат продолжался в другой день)
     GET  /admin             страница Марии: речевые паттерны, импорт переписок, список гостей (нужен ADMIN_TOKEN)
     GET  /healthz           проверка живости (Render health check)
+    POST /api/external-booking  внешняя бронь (Treatwell / email / календарь) → блокирует слот во всех каналах (EXTERNAL_BOOKING_TOKEN)
+    POST /api/admin/generate-link  одноразовая ссылка t.me/<бот>?start=activate_… для привязки Марии как администратора (ADMIN_TOKEN)
     остальное (только локально, SERVE_SITE=true): сайт из корня проекта + тест-страница
 
   После каждой новой записи Мария получает сообщение в Telegram (TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID).
@@ -25,6 +27,11 @@ const path = require('node:path');
 const vm = require('node:vm');
 const crypto = require('node:crypto');
 const memoryLib = require('./memory.js');
+const { createBookingState } = require('../../server/bookingState.js');
+const { createExternalBookingRoute } = require('../../server/routes/externalBooking.js');
+const { createTelegramAdmin } = require('../../server/telegramAdmin.js');
+const { createAdminAuthRoute } = require('../../server/routes/adminAuth.js');
+const { createEmailListener } = require('../../server/services/emailListener.js');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const DATA_DIR = path.join(__dirname, 'data');
@@ -56,7 +63,13 @@ const ALLOWED_ORIGINS = (ENV.ALLOWED_ORIGINS || '').split(',').map(function (s) 
 let S;           // shared/schedule.mjs (ESM) — подгружается в main()
 let TG;          // shared/telegram.mjs
 let WA;          // shared/whatsapp.mjs
+let createStoreFn = null; // shared/store.mjs::createStore (для config.json в приватном репозитории)
 let ghStore = null; // shared/store.mjs → приватный репозиторий (если заданы GITHUB_TOKEN и BOOKINGS_REPO)
+let IMAPL;           // server/services/emailListener.js — IMAP-опрос ящика Афины
+let BS;             // server/bookingState.js — единый табель занятости (сайт + Treatwell/email/календарь)
+let EXT;            // server/routes/externalBooking.js — приёмник внешних броней
+let TGA;            // server/telegramAdmin.js — бот Афины: привязка Марии и уведомления ей
+let ADMINAUTH;      // server/routes/adminAuth.js — /api/admin/generate-link
 let MEM;            // постоянная память гостей и речевые паттерны Марии (memory.js)
 const ADMIN_TOKEN = ENV.ADMIN_TOKEN || '';   // доступ к странице /admin; пусто = админка выключена
 
@@ -246,14 +259,29 @@ function telegramText(b) {
 }
 
 /* Мария получает уведомление в Telegram и (если настроено) в WhatsApp. Сбой одного канала не влияет на другой и на запись. */
-function sendAdminTelegram(html, label) {
-  if (!ENV.TELEGRAM_BOT_TOKEN || !ENV.TELEGRAM_CHAT_ID) {
-    console.log('  Telegram: пропущено (нет TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID)');
-    return;
-  }
-  TG.sendTelegram({ token: ENV.TELEGRAM_BOT_TOKEN, chatId: ENV.TELEGRAM_CHAT_ID, html: html })
-    .then(function () { console.log('  Telegram: ' + (label || 'уведомление') + ' отправлено'); })
-    .catch(function (e) { console.error('  Telegram: ' + e.message); });
+function sendAdminTelegram(html, label, buttons) {
+  TGA.chatId().then(function (id) {
+    if (!ENV.TELEGRAM_BOT_TOKEN || !id) {
+      console.log('  Telegram: пропущено (нет TELEGRAM_BOT_TOKEN или администратор не привязан: /api/admin/generate-link)');
+      return;
+    }
+    return TGA.sendAdminNotification(html, { html: true, buttons: buttons })
+      .then(function () { console.log('  Telegram: ' + (label || 'уведомление') + ' отправлено'); });
+  }).catch(function (e) { console.error('  Telegram: ' + e.message); });
+}
+
+/* кнопки под уведомлением о брони Treatwell: callback_data = tw:ok|del:<код заказа> (до 64 байт) */
+function twButtons(b, okText) {
+  if (!b || !b.externalId) { return undefined; }
+  return [{ text: okText, data: 'tw:ok:' + b.externalId }, { text: '❌ Снять блок', data: 'tw:del:' + b.externalId }];
+}
+async function onTelegramAction(data) {
+  const m = String(data).match(/^tw:(ok|del):(T\d{8,12})$/);
+  if (!m) { return 'Неизвестное действие'; }
+  if (m[1] === 'ok') { return 'Принято'; }
+  const r = await BS.cancelExternal('treatwell', m[2]);
+  if (!r.ok) { return 'Не удалось снять блок'; }
+  return r.found ? 'Блок снят, слот свободен. Не забудьте отменить визит в Treatwell.' : 'Блок уже снят';
 }
 
 function notifyTelegram(booking) {
@@ -324,7 +352,7 @@ async function availabilityFor(args) {
   const out = [];
   for (let i = 0; i < S.HORIZON_DAYS && out.length < days; i++) {
     const date = S.addDays(from, i);
-    const slots = S.slotsForDate(key, date, list, now);
+    const slots = await BS.freeSlots(key, date, now, list);   // расписание + проверка через checkAvailability: Treatwell и другие внешние брони исключены
     if (slots.length) {
       out.push({ date: date, weekday: new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'long' }).format(new Date(date + 'T12:00:00Z')), slots: slots });
     }
@@ -561,7 +589,7 @@ const PUBLIC_AGENT_FILES = ['/booking/agent/agent-widget.js', '/booking/agent/ag
 function allowedStatic(urlPath) {
   if (PUBLIC_AGENT_FILES.includes(urlPath)) { return true; }
   if (/(^|\/)(\.|node_modules)/.test(urlPath)) { return false; }
-  if (/^\/(booking|tools)(\/|$)/.test(urlPath)) { return false; }
+  if (/^\/(booking|tools|server)(\/|$)/.test(urlPath)) { return false; }
   if (/\.(zip|md|mjs)$/i.test(urlPath) || /\/desktop\.ini$/i.test(urlPath)) { return false; }
   return true;
 }
@@ -766,6 +794,8 @@ async function handler(req, res) {
       const out = API_KEY ? await chat(history, cleanContext(body.context)) : await demoChat(history, lang);
       return send(res, 200, Object.assign({ demo: !API_KEY }, out));
     }
+    if ((url.pathname === '/api/external-booking' || url.pathname === '/api/external-booking/email') && await EXT.handle(req, res, url, ip)) { return; }
+    if (url.pathname.indexOf('/api/admin/') === 0 && await ADMINAUTH.handle(req, res, url, ip)) { return; }
     if (url.pathname.indexOf('/admin/api/') === 0) { return await adminApi(req, res, url, ip); }
     if (req.method === 'GET' && url.pathname === '/admin') { return await serveAdmin(res); }
     if (req.method === 'GET' && url.pathname === '/agent/status') {
@@ -805,6 +835,7 @@ async function handler(req, res) {
   WA = await import(toUrl('whatsapp.mjs'));
   if (ENV.GITHUB_TOKEN && ENV.BOOKINGS_REPO) {
     const { createStore } = await import(toUrl('store.mjs'));
+    createStoreFn = createStore;
     ghStore = createStore({ token: ENV.GITHUB_TOKEN, repo: ENV.BOOKINGS_REPO, path: ENV.BOOKINGS_PATH || 'bookings.json', branch: ENV.BOOKINGS_BRANCH || 'main' });
     MEM = memoryLib.createMemory({
       backend: memoryLib.githubBackend(function (p) { return createStore({ token: ENV.GITHUB_TOKEN, repo: ENV.BOOKINGS_REPO, path: p, branch: ENV.BOOKINGS_BRANCH || 'main' }); }, ENV.MEMORY_DIR || 'memory'),
@@ -815,11 +846,60 @@ async function handler(req, res) {
     MEM = memoryLib.createMemory({ backend: memoryLib.fileBackend(path.join(DATA_DIR, 'memory')), log: console.warn });
   }
   await MEM.init();
+  const cfgStore = ghStore ? createStoreFn({ token: ENV.GITHUB_TOKEN, repo: ENV.BOOKINGS_REPO, path: ENV.CONFIG_PATH || 'config.json', branch: ENV.BOOKINGS_BRANCH || 'main' }) : null;
+  BS = createBookingState({
+    schedule: S, read: readBookings, update: updateBookings, log: console.log,
+    // конфигурация (admin_chat_id): на Render - config.json в приватном репозитории (массив из одного объекта), локально - data/config.json
+    configFile: path.join(DATA_DIR, 'config.json'),
+    configRead: cfgStore ? async function () { return (await cfgStore.read()).bookings[0] || {}; } : undefined,
+    configUpdate: cfgStore ? function (mutate) { return cfgStore.update(async function (list) { const o = list[0] || (list[0] = {}); await mutate(o); return {}; }, 'config').then(function () { return {}; }); } : undefined
+  });
+  TGA = createTelegramAdmin({ tg: TG, token: ENV.TELEGRAM_BOT_TOKEN || '', state: BS, fallbackChatId: ENV.TELEGRAM_CHAT_ID || '', botUsername: ENV.TELEGRAM_BOT_USERNAME || '', onAction: onTelegramAction, log: console.log });
+  ADMINAUTH = createAdminAuthRoute({ bot: TGA, state: BS, token: ADMIN_TOKEN, prod: PROD, send: send, limited: limited });
+  EXT = createExternalBookingRoute({
+    state: BS, schedule: S, token: ENV.EXTERNAL_BOOKING_TOKEN || '', prod: PROD, send: send, readJson: readJson, limited: limited, log: console.log,
+    notifyAdmin: function (b, conflicts) {
+      const day = new Intl.DateTimeFormat('ru-RU', { timeZone: S.TZ, weekday: 'short', day: 'numeric', month: 'long' }).format(S.toUtc(b.date, b.time));
+      sendAdminTelegram([
+        '⚠️ <b>Наложение записей</b>',
+        '',
+        BS.labelOf(b.source) + ': ' + TG.escapeHtml(b.name || '—') + ' · ' + b.minutes + ' мин',
+        '🗓 ' + TG.escapeHtml(day) + ', <b>' + b.time + '</b>',
+        '',
+        'Пересекается с: ' + conflicts.map(function (x) { return x.time + ' (' + x.sourceLabel + ', ' + TG.escapeHtml(x.name || '—') + ')'; }).join('; '),
+        '',
+        '<i>Слот заблокирован, но его нужно разрешить вручную.</i>'
+      ].join('\n'), 'предупреждение о наложении', twButtons(b, '👀 Разберусь сама'));
+    },
+    notifyNew: function (b, p) {
+      const day = new Intl.DateTimeFormat('ru-RU', { timeZone: S.TZ, weekday: 'short', day: 'numeric', month: 'long' }).format(S.toUtc(b.date, b.time));
+      sendAdminTelegram([
+        '📥 <b>Новая запись из Treatwell</b> · ' + TG.escapeHtml(p.code),
+        '',
+        '🗓 ' + TG.escapeHtml(day) + ', <b>' + b.time + '</b> · ' + b.minutes + ' мин',
+        p.service ? '💅 ' + TG.escapeHtml(p.service) + (p.price ? ' · €' + TG.escapeHtml(p.price) : '') : '',
+        '👤 ' + TG.escapeHtml(p.name || '—') + (p.phone ? ' · ' + TG.escapeHtml(p.phone) : '') + (p.email ? ' · ' + TG.escapeHtml(p.email) : ''),
+        '',
+        '<i>Время заблокировано на сайте.</i>'
+      ].filter(function (l, i) { return l !== '' || i === 1 || i === 5; }).join('\n'), 'новая запись Treatwell', twButtons(b, '✅ Принято'));
+    }
+  });
+  if (ENV.IMAP_USER && ENV.IMAP_PASSWORD) {   // фоновый забор писем Treatwell из ящика Афины
+    IMAPL = createEmailListener({
+      user: ENV.IMAP_USER, password: ENV.IMAP_PASSWORD, host: ENV.IMAP_HOST, port: ENV.IMAP_PORT, intervalSec: ENV.IMAP_INTERVAL_SEC,
+      from: ENV.IMAP_FROM || 'noreply@treatwell.gr', log: console.log,
+      onMail: async function (mail) { await EXT.processMail(mail); }
+    });
+  }
   // Render останавливает сервис сигналом SIGTERM: дописываем отложенные записи памяти
   ['SIGTERM', 'SIGINT'].forEach(function (sig) {
     process.on(sig, function () { MEM.flush().finally(function () { process.exit(0); }); setTimeout(function () { process.exit(0); }, 8000).unref(); });
   });
+  if (ENV.TELEGRAM_BOT_TOKEN && ENV.TELEGRAM_BOT_POLLING !== 'off') { await TGA.startPolling(); }   // бот принимает /start activate_…
+  const bound = await BS.adminChatId();
+  const activation = bound ? null : await TGA.generateActivation();   // пока администратор не привязан
   http.createServer(handler).listen(PORT, HOST, function () {
+    if (IMAPL) { setTimeout(function () { IMAPL.start(); }, 300); }   // статус подключения выводится после основной шапки
     console.log('\n  MS Nails Academy · ИИ-ассистент записи (' + (PROD ? 'продакшен' : 'локально') + ')');
     console.log('  Адрес:         http://' + (HOST === '0.0.0.0' ? 'localhost' : HOST) + ':' + PORT + '/');
     if (SERVE_SITE) { console.log('  Тест-страница: http://localhost:' + PORT + '/booking/agent/agent-test.html'); }
@@ -827,6 +907,14 @@ async function handler(req, res) {
     console.log('  Хранилище:     ' + (ghStore ? 'GitHub · ' + ENV.BOOKINGS_REPO : path.relative(ROOT, DATA_FILE) + ' (локальный файл)'));
     console.log('  Память гостей: ' + MEM.backendName + (ghStore ? ' · ' + ENV.BOOKINGS_REPO + '/' + (ENV.MEMORY_DIR || 'memory') : ' · ' + path.relative(ROOT, path.join(DATA_DIR, 'memory'))) + ' · админка ' + (ADMIN_TOKEN ? 'включена (/admin)' : 'выключена (нет ADMIN_TOKEN)'));
     console.log('  Telegram:      ' + (ENV.TELEGRAM_BOT_TOKEN && ENV.TELEGRAM_CHAT_ID ? 'включён' : 'выключен (нет TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID)'));
+    const baseUrl = (ENV.PUBLIC_BASE_URL || 'https://ms-nails-academy.onrender.com').replace(/\/+$/, '');
+    console.log('  Treatwell:     приём писем ' + (ENV.EXTERNAL_BOOKING_TOKEN ? 'включён' : (PROD ? 'ВЫКЛЮЧЕН (нет EXTERNAL_BOOKING_TOKEN)' : 'открыт локально (нет EXTERNAL_BOOKING_TOKEN)')));
+    console.log('    Вебхук почты:    ' + baseUrl + '/api/external-booking/email' + (ENV.EXTERNAL_BOOKING_TOKEN ? '?key=<EXTERNAL_BOOKING_TOKEN>' : ''));
+    console.log('    Email Афины:     ' + (ENV.ATHENA_EMAIL ? ENV.ATHENA_EMAIL + '  (для Treatwell Connect)' : 'не задан · укажите ATHENA_EMAIL после настройки почтового маршрута (server/mail/README.md)'));
+    console.log('  Администратор: ' + (bound ? 'привязан (admin_chat_id ' + bound + ')' : 'не привязан'));
+    if (!bound && (!PROD || ENV.PRINT_ACTIVATION_LINK === 'true')) {   // в продакшене секретную ссылку в логи не пишем, если не просили
+      console.log('  Постоянная ссылка авторизации Марии (без срока, сгорает после первого успешного входа):\n    ' + activation.link);
+    }
     console.log('  CORS:          ' + (ALLOWED_ORIGINS.length ? ALLOWED_ORIGINS.join(', ') : 'не ограничен') + '\n');
   });
 })();

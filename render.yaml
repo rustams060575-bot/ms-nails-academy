@@ -18,6 +18,7 @@ services:
     buildFilter:               # пересобирать только при изменениях в серверной части
       paths:
         - booking/**
+        - server/**
         - render.yaml
         - package.json
     envVars:
@@ -50,3 +51,14 @@ services:
         sync: false
       - key: MEMORY_DIR        # папка памяти гостей в приватном репозитории
         value: memory
+      # --- Treatwell, Telegram-бот Афины и почта (подробно: booking/agent/DEPLOY.md, «Шаг 7») ---
+      - key: TELEGRAM_BOT_USERNAME
+        value: ms_nails_booking_bot
+      - key: IMAP_USER
+        value: athena.msnails@gmail.com
+      - key: ATHENA_EMAIL
+        value: athena.msnails@gmail.com
+      - key: IMAP_PASSWORD     # пароль приложения Google (16 букв)
+        sync: false
+      - key: EXTERNAL_BOOKING_TOKEN   # ключ вебхука /api/external-booking/*; без него эндпоинт в продакшене выключен
+        sync: false
