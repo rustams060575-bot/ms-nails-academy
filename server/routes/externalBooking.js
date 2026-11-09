@@ -118,7 +118,7 @@ function createExternalBookingRoute(cfg) {
 
   /* Общая обработка письма Treatwell (вебхук и IMAP-опрос): разбор -> bookingState -> уведомление. Возвращает { status, body, p } */
   async function processMail(mail) {
-    const p = parseTreatwellEmail(mail);
+    const p = parseTreatwellEmail(mail, { extraSenders: cfg.extraSenders });
     if (!p.ok) { log('[ПОЧТА] Treatwell: письмо не разобрано (' + p.error + ') · тема: ' + String(mail.subject || '').slice(0, 80)); return { status: 400, body: { error: p.error }, p: p }; }
     if (p.kind === 'cancel') {
       const r = await state.cancelExternal('treatwell', p.code);

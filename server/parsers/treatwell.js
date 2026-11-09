@@ -46,10 +46,12 @@ function labeled(text, label) {
   return m ? m[1].trim() : '';
 }
 
-function parseTreatwellEmail(mail) {
+function parseTreatwellEmail(mail, opts) {
   const m = mail || {};
   const from = String(m.from || '');
-  if (from && !/@([a-z0-9-]+\.)*treatwell\.[a-z.]+/i.test(from)) { return { ok: false, error: 'bad_sender' }; }
+  /* отправитель: сам Treatwell или доверенный адрес, с которого Мария пересылает письма (opts.extraSenders) */
+  const trusted = ((opts && opts.extraSenders) || []).some(function (a) { return a && from.toLowerCase().indexOf(String(a).toLowerCase()) >= 0; });
+  if (from && !trusted && !/@([a-z0-9-]+\.)*treatwell\.[a-z.]+/i.test(from)) { return { ok: false, error: 'bad_sender' }; }
   const subject = String(m.subject || '');
   const text = toText([m.text, m.html, m.body].filter(Boolean).join('\n'))   // в письмах бывает и text, и html: читаем обе части;
   const all = subject + '\n' + text;

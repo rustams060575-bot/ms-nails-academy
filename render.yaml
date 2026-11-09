@@ -58,7 +58,15 @@ services:
         value: athena.msnails@gmail.com
       - key: ATHENA_EMAIL
         value: athena.msnails@gmail.com
-      - key: IMAP_PASSWORD     # пароль приложения Google (16 букв)
+      - key: META_ACCESS_TOKEN # Instagram/Facebook (необязательно): токен Страницы, только чтение
+        sync: false
+      - key: IG_BUSINESS_ID
+        sync: false
+      - key: FB_PAGE_ID
+        sync: false
+      - key: IMAP_FORWARDERS   # адреса Марии, с которых она пересылает письма Treatwell (необязательно)
+        sync: false
+      - key: IMAP_PASSWORD    # пароль приложения Google (16 букв)
         sync: false
       - key: EXTERNAL_BOOKING_TOKEN   # ключ вебхука /api/external-booking/*; без него эндпоинт в продакшене выключен
         sync: false

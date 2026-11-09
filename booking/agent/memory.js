@@ -116,7 +116,7 @@ function createMemory({ backend, log }) {
   const clients = new Map();
   let patterns = [];
   const chats = new Map();          // id → { msgs, dirty }
-  const dirty = { clients: false, patterns: false };
+  const dirty = { clients: false, patterns: false, admin: false };
   let timer = null;
   let chain = Promise.resolve();
 
@@ -135,6 +135,10 @@ function createMemory({ backend, log }) {
     if (dirty.patterns) {
       dirty.patterns = false;
       try { await backend.write('patterns.json', patterns); } catch (e) { dirty.patterns = true; throw e; }
+    }
+    if (dirty.admin) {
+      dirty.admin = false;
+      try { await backend.write('admin.json', [admin]); } catch (e) { dirty.admin = true; throw e; }
     }
     for (const [id, c] of Array.from(chats.entries())) {
       if (!c.dirty) { continue; }
@@ -159,6 +163,13 @@ function createMemory({ backend, log }) {
     });
     const pl = await backend.read('patterns.json');
     patterns = (Array.isArray(pl) ? pl : []).filter(function (p) { return p && p.id && p.text; });
+    const al = await backend.read('admin.json');
+    const a = Array.isArray(al) && al[0] && typeof al[0] === 'object' ? al[0] : {};
+    admin = {
+      notes: (Array.isArray(a.notes) ? a.notes : []).filter(function (n) { return n && n.text; }),
+      msgs: (Array.isArray(a.msgs) ? a.msgs : []).filter(function (m) { return m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string'; }),
+      summary: typeof a.summary === 'string' ? a.summary : ''
+    };
   }
 
   /* ----- гостьи ----- */
@@ -215,11 +226,64 @@ function createMemory({ backend, log }) {
     const h = await history(id);
     const at = new Date().toISOString();
     items.forEach(function (m) { h.push({ role: m.role, content: String(m.content).slice(0, 1500), at: at }); });
-    while (h.length > MAX_MESSAGES) { h.shift(); }
-    while (h.length && h[0].role !== 'user') { h.shift(); }
+    const dropped = [];   // вытесненные реплики не пропадают бесследно: из них строится краткая сводка (setSummary)
+    while (h.length > MAX_MESSAGES) { dropped.push(h.shift()); }
+    while (h.length && h[0].role !== 'user') { dropped.push(h.shift()); }
     chats.get(id).dirty = true;
     touch(id);
+    return dropped;
   }
+
+  /* Долгая память: сводка прошлых бесед (то, что уже не помещается в последние MAX_MESSAGES реплик) */
+  function setSummary(id, text) {
+    const p = clients.get(id);
+    const t = String(text || '').replace(/\r/g, '').trim().slice(0, 1200);
+    if (!p || !t) { return false; }
+    p.summary = t;
+    p.summaryAt = new Date().toISOString();
+    dirty.clients = true;
+    schedule();
+    return true;
+  }
+
+  /* ----- память о Марии и студии (admin.json): заметки «запомни…», последние реплики, сводка прошлых разговоров ----- */
+  let admin = { notes: [], msgs: [], summary: '' };
+  const MAX_ADMIN_NOTES = 80, MAX_ADMIN_MSGS = 30;
+  function adminState() { return admin; }
+  function adminAddNote(text) {
+    const t = oneLine(text, 400);
+    if (t.length < 3) { return null; }
+    const dup = admin.notes.find(function (n) { return n.text.toLowerCase() === t.toLowerCase(); });
+    if (dup) { return { note: dup, duplicate: true }; }
+    const note = { id: crypto.randomBytes(3).toString('hex'), at: new Date().toISOString(), text: t };
+    admin.notes.push(note);
+    if (admin.notes.length > MAX_ADMIN_NOTES) { admin.notes = admin.notes.slice(-MAX_ADMIN_NOTES); }
+    dirty.admin = true; schedule();
+    return { note: note, duplicate: false };
+  }
+  function adminRemoveNote(ref) {   // по номеру в списке (с 1) или по id
+    const i = /^\d{1,3}$/.test(String(ref)) ? Number(ref) - 1 : admin.notes.findIndex(function (n) { return n.id === String(ref); });
+    if (i < 0 || i >= admin.notes.length) { return null; }
+    const gone = admin.notes.splice(i, 1)[0];
+    dirty.admin = true; schedule();
+    return gone;
+  }
+  function adminAppend(items) {   // возвращает вытесненные реплики для сводки
+    const at = new Date().toISOString();
+    items.forEach(function (m) { admin.msgs.push({ role: m.role, content: String(m.content).slice(0, 3000), at: at }); });
+    const dropped = [];
+    while (admin.msgs.length > MAX_ADMIN_MSGS) { dropped.push(admin.msgs.shift()); }
+    while (admin.msgs.length && admin.msgs[0].role !== 'user') { dropped.push(admin.msgs.shift()); }
+    dirty.admin = true; schedule();
+    return dropped;
+  }
+  function adminSetSummary(text) {
+    const t = String(text || '').replace(/\r/g, '').trim().slice(0, 1500);
+    if (!t) { return false; }
+    admin.summary = t; dirty.admin = true; schedule();
+    return true;
+  }
+  function adminReset() { admin = { notes: admin.notes, msgs: [], summary: '' }; dirty.admin = true; schedule(); }
 
   /* «Забыть меня»: профиль и диалог стираются (в git-истории приватного репозитория старые коммиты остаются — см. DEPLOY.md) */
   async function forget(id) {
@@ -300,7 +364,8 @@ function createMemory({ backend, log }) {
 
   return {
     backendName: backend.name,
-    init, flush, isId, profile, touch, setName, addPhone, addNote, history, append, forget, listGuests,
+    init, flush, isId, profile, touch, setName, addPhone, addNote, setSummary, history, append, forget, listGuests,
+    adminState, adminAddNote, adminRemoveNote, adminAppend, adminSetSummary, adminReset,
     listPatterns, addPattern, updatePattern, removePattern, promptPatterns
   };
 }

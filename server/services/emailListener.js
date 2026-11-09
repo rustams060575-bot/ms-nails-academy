@@ -142,7 +142,11 @@ function createEmailListener(cfg) {
   const host = cfg.host || 'imap.gmail.com';
   const port = Number(cfg.port) || 993;
   const everyMs = Math.max(15, Number(cfg.intervalSec) || 60) * 1000;
-  const fromFilter = cfg.from || 'noreply@treatwell.gr';
+  const senders = [].concat(cfg.from || 'noreply@treatwell.gr').filter(Boolean);   // Treatwell и, при пересылке, адреса Марии
+  const fromFilter = senders.join(', ');
+  /* IMAP: префиксная запись OR FROM a OR FROM b FROM c */
+  const fromCriteria = senders.length === 1 ? 'FROM ' + quote(senders[0])
+    : senders.slice(0, -1).map(function (a) { return 'OR FROM ' + quote(a); }).join(' ') + ' FROM ' + quote(senders[senders.length - 1]);
   const onMail = cfg.onMail;                               // async (mail) -> void; исключение = временная ошибка (письмо останется непрочитанным)
   const log = cfg.log || console.log;
   let timer = null, running = false, lastError = '', ok = false, polls = 0, processed = 0;
@@ -156,7 +160,7 @@ function createEmailListener(cfg) {
       if (!r.ok) { const e = new Error(r.status.replace(/^A\d+\s+/, '')); e.auth = true; throw e; }
       r = await c.cmd('SELECT INBOX');
       if (!r.ok) { throw new Error('IMAP: не открылась папка INBOX: ' + r.status); }
-      r = await c.cmd('UID SEARCH UNSEEN FROM ' + quote(fromFilter));
+      r = await c.cmd('UID SEARCH UNSEEN ' + fromCriteria);
       const line = r.entries.find(function (e) { return e.text.indexOf('* SEARCH') === 0; });
       uids = line ? line.text.slice(8).trim().split(/\s+/).filter(Boolean).slice(0, 20) : [];
       for (const uid of uids) {

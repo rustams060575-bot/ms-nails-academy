@@ -104,18 +104,79 @@ function createTelegramAdmin(cfg) {
     return { handled: true, ok: true, text: text };
   }
 
+  /* ---------- Афина как помощник Марии: свободный текст от привязанного администратора ---------- */
+  const busy = new Set();
+  const HELP = [
+    'Я не только записываю гостей, но и помогаю с работой студии. Пишите обычным текстом, например:',
+    '',
+    '• «Идеи для Stories на неделю»',
+    '• «Напиши пост про наращивание, на русском и греческом»',
+    '• «Составь контент-план на 2 недели»',
+    '• «Что у нас по записям на этой неделе?»',
+    '• «Как вернуть давно не приходивших клиенток?»',
+    '',
+    'Память: «Запомни: …» сохраняет заметку насовсем, /память показывает, что я помню, «/забудь 2» убирает заметку, /сброс начинает разговор заново.',
+    '',
+    'Публиковать в Instagram и Facebook сама я пока не умею: готовлю тексты и планы, вы публикуете.'
+  ].join('\n');
+
+  /* Claude отвечает markdown-ом: в Telegram HTML оставляем только жирный и маркеры списка, всё остальное экранируем */
+  function toHtml(text) {
+    return tg.escapeHtml(text)
+      .replace(/^#{1,6}\s*(.+)$/gm, '<b>$1</b>')
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/^[ \t]*[-*][ \t]+/gm, '• ');
+  }
+  function chunks(text, max) {
+    const out = [];
+    let cur = '';
+    String(text).split(/\n{2,}/).forEach(function (p) {
+      while (p.length > max) { out.push(p.slice(0, max)); p = p.slice(max); }
+      if ((cur + '\n\n' + p).length > max && cur) { out.push(cur); cur = p; } else { cur = cur ? cur + '\n\n' + p : p; }
+    });
+    if (cur) { out.push(cur); }
+    return out;
+  }
+  async function sendLong(chat, text) {
+    for (const part of chunks(text, 3500)) {
+      await tg.sendTelegram({ token: token, chatId: chat, html: toHtml(part) }).catch(function () { return tg.sendTelegram({ token: token, chatId: chat, html: tg.escapeHtml(part) }); });
+    }
+  }
+  async function handleAdminText(msg) {
+    if (!cfg.onAdminText || !msg.chat || msg.chat.type !== 'private') { return { handled: false }; }
+    const c = await state.getConfig();
+    const admin = String(c.admin_chat_id || '');
+    const chat = String(msg.chat.id);
+    if (!admin || chat !== admin || String((msg.from || {}).id || chat) !== String(c.admin_telegram_id || admin)) { return { handled: false }; }   // только Мария
+    const text = msg.text.trim();
+    if (!text) { return { handled: false }; }
+    if (/^\/(help|помощь)(@\w+)?$/i.test(text)) { await reply(chat, HELP); return { handled: true, assistant: false }; }
+    if (busy.has(chat)) { await reply(chat, 'Секунду, я ещё отвечаю на предыдущее сообщение.').catch(function () {}); return { handled: true, busy: true }; }
+    busy.add(chat);
+    const typing = function () { api('sendChatAction', { chat_id: chat, action: 'typing' }).catch(function () {}); };
+    typing();
+    const timer = setInterval(typing, 4000);
+    try {
+      await sendLong(chat, await cfg.onAdminText(text, chat));
+    } catch (e) {
+      log('  [Telegram] помощник Марии: ' + e.message);
+      await reply(chat, 'Не получилось ответить, попробуйте ещё раз через минуту.').catch(function () {});
+    } finally { clearInterval(timer); busy.delete(chat); }
+    return { handled: true, assistant: true };
+  }
+
   async function handleUpdate(update) {
     if (update && update.callback_query) { return handleCallback(update.callback_query); }
     const msg = update && update.message;
     if (!msg || typeof msg.text !== 'string' || !msg.chat) { return { handled: false }; }
     const m = msg.text.match(/^\/start(?:@\w+)?(?:\s+(\S+))?\s*$/);
-    if (!m) { return { handled: false }; }
+    if (!m) { return handleAdminText(msg); }
     const chat = String(msg.chat.id);
     const param = m[1] || '';
 
     if (param.indexOf(KEY) !== 0) {
       const bound = (await state.getConfig()).admin_chat_id;
-      await reply(chat, bound && String(bound) === chat ? 'Я на связи, Мария. Уведомления приходят сюда.' : PRIVATE_MESSAGE);
+      await reply(chat, bound && String(bound) === chat ? 'Я на связи, Мария. Уведомления приходят сюда. Пишите мне как помощнице: идеи для Stories, посты, план продвижения, сводка по записям. Подсказка: /help' : PRIVATE_MESSAGE);
       return { handled: true, activated: false };
     }
     if (msg.chat.type !== 'private') {

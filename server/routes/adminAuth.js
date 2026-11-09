@@ -35,7 +35,7 @@ function createAdminAuthRoute(cfg) {
   async function handle(req, res, url, ip) {
     if (url.pathname.indexOf('/api/admin/') !== 0) { return false; }
     const route = url.pathname.slice('/api/admin/'.length);
-    if (['generate-link', 'status', 'test-notification'].indexOf(route) < 0) { return false; }
+    if (['generate-link', 'status', 'test-notification', 'assistant'].indexOf(route) < 0) { return false; }
     if (!token && prod) { send(res, 503, { error: 'admin_disabled' }); return true; }
     if (limited(ip, 'adminauth', 20)) { send(res, 429, { error: 'rate_limited' }); return true; }
     if (!authorized(req)) { send(res, 401, { error: 'unauthorized' }); return true; }
@@ -48,6 +48,17 @@ function createAdminAuthRoute(cfg) {
     if (route === 'generate-link' && req.method === 'POST') {
       const a = await bot.generateActivation({ rebind: url.searchParams.get('rebind') === '1' });
       send(res, 200, { ok: true, link: a.link, permanent: true, one_time: true, bound: a.bound, rebind: a.rebind });
+      return true;
+    }
+    /* POST /api/admin/assistant { text, chat? } -> { ok, reply }: тот же помощник, что в Telegram (для проверки и будущего кабинета) */
+    if (route === 'assistant' && req.method === 'POST') {
+      if (!cfg.assistant || !cfg.readJson) { send(res, 503, { error: 'assistant_disabled' }); return true; }
+      let body;
+      try { body = await cfg.readJson(req); } catch (e) { send(res, 400, { error: e.message }); return true; }
+      const text = String((body && body.text) || '').trim();
+      if (!text) { send(res, 400, { error: 'empty_text' }); return true; }
+      try { send(res, 200, { ok: true, reply: await cfg.assistant.reply(text, 'web:' + String((body && body.chat) || 'default')) }); }
+      catch (e) { send(res, 502, { error: 'assistant_failed', detail: e.message }); }
       return true;
     }
     if (route === 'test-notification' && req.method === 'POST') {
